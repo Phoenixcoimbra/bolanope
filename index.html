@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Low Hall League 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lightgallery-bundle.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
@@ -16,20 +17,17 @@
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-black tracking-tighter italic">LOW HALL <span class="text-green-500">LEAGUE</span></h1>
             <ul class="hidden md:flex space-x-6 text-xs uppercase font-bold tracking-widest">
-                <li><a href="#fixtures" class="hover:text-green-400 transition">Fixtures</a></li>
-                <li><a href="#table" class="hover:text-green-400 transition">Classificação</a></li>
-                <li><a href="#stats" class="hover:text-green-400 transition">Estatísticas</a></li>
-                <li><a href="#gallery" class="hover:text-green-400 transition">Galeria</a></li>
+                <li><a href="#fixtures" class="hover:text-green-400">Fixtures</a></li>
+                <li><a href="#table" class="hover:text-green-400">Classificação</a></li>
+                <li><a href="#stats" class="hover:text-green-400">Estatísticas</a></li>
+                <li><a href="#gallery" class="hover:text-green-400">Galeria</a></li>
             </ul>
         </div>
     </nav>
 
-    <header class="relative bg-green-900 text-white py-16 px-4 text-center overflow-hidden">
-        <div class="relative z-10">
-            <span class="bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold uppercase mb-4 inline-block">Kick-off: 25 Abril</span>
-            <h2 class="text-5xl font-black mb-2 italic">TEMPORADA 2026</h2>
-            <p class="text-green-200 max-w-md mx-auto">Low Hall Sports Ground, E17 8AX. Jogos todos os Sábados às 12:30.</p>
-        </div>
+    <header class="bg-green-900 text-white py-16 px-4 text-center">
+        <h2 class="text-5xl font-black mb-2 italic uppercase">Temporada 2026</h2>
+        <p class="text-green-200 italic">Low Hall Sports Ground, E17 8AX</p>
     </header>
 
     <main class="container mx-auto px-4 py-8 space-y-16">
@@ -49,47 +47,51 @@
                             <th class="p-4">Equipa</th>
                             <th class="p-4 text-center">J</th>
                             <th class="p-4 text-center">V</th>
-                            <th class="p-4 text-center">E</th>
-                            <th class="p-4 text-center">D</th>
-                            <th class="p-4 text-center text-black font-black">PTS</th>
+                            <th class="p-4 text-center font-black">PTS</th>
                         </tr>
                     </thead>
-                    <tbody id="league-table-body">
-                        </tbody>
+                    <tbody id="league-table-body"></tbody>
                 </table>
             </div>
         </section>
 
         <section id="stats" class="grid lg:grid-cols-2 gap-12">
             <div>
-                <h3 class="text-2xl font-black mb-6 flex items-center italic"><span class="mr-2 text-3xl">🏆</span> MELHOR MARCADOR</h3>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" id="top-scorers-list">
-                    </div>
+                <h3 class="text-2xl font-black mb-6 italic">🏆 MELHOR MARCADOR</h3>
+                <div class="bg-white rounded-xl shadow border overflow-hidden" id="top-scorers-list"></div>
             </div>
             <div>
-                <h3 class="text-2xl font-black mb-6 flex items-center italic"><span class="mr-2 text-3xl">🟨</span> DISCIPLINA & MULTAS</h3>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" id="discipline-list">
-                    </div>
+                <h3 class="text-2xl font-black mb-6 italic">🟨 DISCIPLINA</h3>
+                <div class="bg-white rounded-xl shadow border overflow-hidden" id="discipline-list"></div>
             </div>
         </section>
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lightgallery-bundle.min.css">
+        <section id="gallery">
+            <h3 class="text-3xl font-black mb-8 border-l-8 border-green-600 pl-4 italic">GALERIA</h3>
+            
+            <div class="mb-8 text-center">
+                <a href="#" class="inline-flex items-center bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:opacity-90 transition">
+                    <span class="mr-2 italic">Follow on Instagram for more</span> 📸
+                </a>
+            </div>
 
-<section id="gallery">
-    <h3 class="text-3xl font-black mb-8 border-l-8 border-green-600 pl-4 italic">GALERIA</h3>
-    <div id="lightgallery" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <a href="images/game1.jpg" data-src="images/game1.jpg" class="block overflow-hidden rounded-lg shadow-md hover:scale-105 transition">
-            <img src="images/game1.jpg" alt="Jornada 1 Action" class="w-full h-48 object-cover" />
-        </a>
-        </div>
-</section>
+            <div id="lightgallery" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gray-200 h-48 rounded-lg flex items-center justify-center text-gray-400 italic">Waiting for Jornada 1...</div>
+            </div>
+        </section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/lightgallery.min.js"></script>
-<script>
-    lightGallery(document.getElementById('lightgallery'), {
-        speed: 500,
-        download: false
-    });
-</script>
-</body>
-</html>
+    </main>
+
+    <footer class="bg-black text-white py-10 text-center">
+        <p class="text-gray-500 text-sm">Low Hall League © 2026</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/lightgallery.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize Gallery
+        lightGallery(document.getElementById('lightgallery'), {
+            speed: 500,
+            download: false
+        });
+    </script>
