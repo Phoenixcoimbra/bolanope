@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Hall League 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <nav class="bg-black text-white p-4 sticky top-0 z-50 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-black tracking-tighter italic">LOW HALL <span class="text-green-500">LEAGUE</span></h1>
+            <ul class="hidden md:flex space-x-6 text-xs uppercase font-bold tracking-widest">
+                <li><a href="#fixtures" class="hover:text-green-400 transition">Fixtures</a></li>
+                <li><a href="#table" class="hover:text-green-400 transition">Classificação</a></li>
+                <li><a href="#stats" class="hover:text-green-400 transition">Estatísticas</a></li>
+                <li><a href="#gallery" class="hover:text-green-400 transition">Galeria</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="relative bg-green-900 text-white py-16 px-4 text-center overflow-hidden">
+        <div class="relative z-10">
+            <span class="bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold uppercase mb-4 inline-block">Kick-off: 25 Abril</span>
+            <h2 class="text-5xl font-black mb-2 italic">TEMPORADA 2026</h2>
+            <p class="text-green-200 max-w-md mx-auto">Low Hall Sports Ground, E17 8AX. Jogos todos os Sábados às 12:30.</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 space-y-16">
+
+        <section id="fixtures">
+            <h3 class="text-3xl font-black mb-8 border-l-8 border-green-600 pl-4 italic">CALENDÁRIO</h3>
+            <div id="fixtures-container" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                </div>
+        </section>
+
+        <section id="table">
+            <h3 class="text-3xl font-black mb-8 border-l-8 border-green-600 pl-4 italic">CLASSIFICAÇÃO</h3>
+            <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-100 text-gray-600 text-xs uppercase font-bold">
+                        <tr>
+                            <th class="p-4">Equipa</th>
+                            <th class="p-4 text-center">J</th>
+                            <th class="p-4 text-center">V</th>
+                            <th class="p-4 text-center">E</th>
+                            <th class="p-4 text-center">D</th>
+                            <th class="p-4 text-center text-black font-black">PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="league-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="stats" class="grid lg:grid-cols-2 gap-12">
+            <div>
+                <h3 class="text-2xl font-black mb-6 flex items-center italic"><span class="mr-2 text-3xl">🏆</span> MELHOR MARCADOR</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" id="top-scorers-list">
+                    </div>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black mb-6 flex items-center italic"><span class="mr-2 text-3xl">🟨</span> DISCIPLINA & MULTAS</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" id="discipline-list">
+                    </div>
+            </div>
+        </section>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lightgallery-bundle.min.css">
+
+<section id="gallery">
+    <h3 class="text-3xl font-black mb-8 border-l-8 border-green-600 pl-4 italic">GALERIA</h3>
+    <div id="lightgallery" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="images/game1.jpg" data-src="images/game1.jpg" class="block overflow-hidden rounded-lg shadow-md hover:scale-105 transition">
+            <img src="images/game1.jpg" alt="Jornada 1 Action" class="w-full h-48 object-cover" />
+        </a>
+        </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/lightgallery.min.js"></script>
+<script>
+    lightGallery(document.getElementById('lightgallery'), {
+        speed: 500,
+        download: false
+    });
+</script>
+</body>
+</html>
