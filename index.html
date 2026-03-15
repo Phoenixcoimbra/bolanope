@@ -13,20 +13,34 @@
 </head>
 <body class="bg-gray-50 text-gray-900">
 
-    <nav class="bg-black text-white p-4 sticky top-0 z-50 shadow-xl">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-black tracking-tighter italic">LOW HALL <span class="text-green-500">LEAGUE</span></h1>
-            <ul class="hidden md:flex space-x-6 text-xs uppercase font-bold tracking-widest">
-                <li><a href="#fixtures" class="hover:text-green-400">Fixtures</a></li>
-                <li><a href="#table" class="hover:text-green-400">Classificação</a></li>
-                <li><a href="#stats" class="hover:text-green-400">Estatísticas</a></li>
-                <li><a href="#gallery" class="hover:text-green-400">Galeria</a></li>
+    <nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b border-green-900/30">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 class="text-2xl font-black tracking-tighter italic">
+                LOW HALL <span class="text-green-500 underline decoration-2 underline-offset-4">LEAGUE</span>
+            </h1>
+            
+            <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm uppercase font-black tracking-wider">
+                <li>
+                    <a href="#fixtures" onclick="showTab('next')" class="py-2 hover:text-green-400 transition-colors duration-200">Próximo</a>
+                </li>
+                <li>
+                    <a href="#fixtures" onclick="showTab('all')" class="py-2 hover:text-green-400 transition-colors duration-200">Calendário</a>
+                </li>
+                <li>
+                    <a href="#table" class="py-2 hover:text-green-400 transition-colors duration-200">Tabela</a>
+                </li>
+                <li>
+                    <a href="#stats" class="py-2 hover:text-green-400 transition-colors duration-200">Stats</a>
+                </li>
+                <li>
+                    <a href="#gallery" class="py-2 hover:text-green-400 transition-colors duration-200">Galeria</a>
+                </li>
             </ul>
         </div>
     </nav>
 
     <header class="bg-green-900 text-white py-16 px-4 text-center">
-        <h2 class="text-5xl font-black mb-2 italic uppercase">Temporada 2026</h2>
+        <h2 class="text-5xl font-black mb-2 italic uppercase">Low Hall League 2026</h2>
         <p class="text-green-200 italic">Low Hall Sports Ground, E17 8AX</p>
     </header>
 
@@ -34,7 +48,16 @@
 
         <section id="fixtures">
             <h3 class="text-3xl font-black mb-8 border-l-8 border-green-600 pl-4 italic">CALENDÁRIO</h3>
-            <div id="fixtures-container" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            
+            <div class="flex space-x-2 mb-6">
+                <button id="btn-next" onclick="showTab('next')" class="px-4 py-2 rounded-lg font-bold text-sm bg-green-600 text-white shadow-md">Próximo Jogo</button>
+                <button id="btn-all" onclick="showTab('all')" class="px-4 py-2 rounded-lg font-bold text-sm bg-gray-200 text-gray-700 hover:bg-gray-300">Ver Todos</button>
+            </div>
+        
+            <div id="next-fixture-container" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                </div>
+        
+            <div id="all-fixtures-container" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 hidden">
                 </div>
         </section>
 
