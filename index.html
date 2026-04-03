@@ -1,62 +1,117 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Low Hall League 2026</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lightgallery-bundle.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .red-panel { background: linear-gradient(145deg, #dc2626, #0b6725); }
-        .yellow-glow { text-shadow: 0 0 8px rgba(252, 211, 77, 0.5); }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behaviour: smooth;
+        }
+
+        .red-panel {
+            background: linear-gradient(145deg, #dc2626, #0b6725);
+        }
+
+        .yellow-glow {
+            text-shadow: 0 0 8px rgba(252, 211, 77, 0.5);
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
+    <!-- NAV -->
     <nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-black tracking-tighter italic">
                 LOW HALL <span class="text-red-500 underline decoration-yellow-400 decoration-4 underline-offset-4">LEAGUE</span>
             </h1>
-            
+
             <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm uppercase font-black tracking-wider">
-                <li><a href="#fixtures" onclick="showTab('next')" class="py-2 hover:text-yellow-400 transition-colors">Próximo</a></li>
-                <li><a href="#fixtures" onclick="showTab('all')" class="py-2 hover:text-yellow-400 transition-colors">Calendário</a></li>
-                <li><a href="#table" class="py-2 hover:text-green-400 transition-colors">Tabela</a></li>
-                <li><a href="#stats" class="py-2 hover:text-yellow-400 transition-colors">Stats</a></li>
+                <li>
+                    <a href="#fixtures" onclick="showTab('next')" class="py-2 hover:text-yellow-400 transition-colors">
+                        Próximo
+                    </a>
+                </li>
+                <li>
+                    <a href="#fixtures" onclick="showTab('all')" class="py-2 hover:text-yellow-400 transition-colors">
+                        Calendário
+                    </a>
+                </li>
+                <li>
+                    <a href="#table" class="py-2 hover:text-green-400 transition-colors">
+                        Tabela
+                    </a>
+                </li>
+                <li>
+                    <a href="#stats" class="py-2 hover:text-yellow-400 transition-colors">
+                        Stats
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
 
+    <!-- HERO -->
     <header class="red-panel text-white py-16 px-4 text-center border-b-8 border-black">
-        <h2 class="text-6xl font-black mb-2 italic uppercase tracking-tighter yellow-glow">Community Football Tournament 2026</h2>
-        <p class="text-yellow-300 italic font-bold tracking-widest uppercase text-sm">Low Hall Sports Ground • London E17</p>
+        <h2 class="text-4xl md:text-6xl font-black mb-2 italic uppercase tracking-tighter yellow-glow">
+            Community Football Tournament 2026
+        </h2>
+        <p class="text-yellow-300 italic font-bold tracking-widest uppercase text-sm">
+            Low Hall Sports Ground • London E17
+        </p>
     </header>
 
+    <!-- MAIN -->
     <main class="container mx-auto px-4 py-8 space-y-16">
 
+        <!-- FIXTURES -->
         <section id="fixtures">
             <div class="flex items-center mb-8">
                 <div class="h-10 w-2 bg-yellow-400 mr-4"></div>
                 <h3 class="text-3xl font-black italic uppercase">Calendário</h3>
             </div>
-            
+
             <div class="flex space-x-2 mb-6">
-                <button id="btn-next" onclick="showTab('next')" class="px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all">Próximo Jogo</button>
-                <button id="btn-all" onclick="showTab('all')" class="px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all">Ver Todos</button>
+                <button
+                    id="btn-next"
+                    onclick="showTab('next')"
+                    class="px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all"
+                >
+                    Próxima Jornada
+                </button>
+
+                <button
+                    id="btn-all"
+                    onclick="showTab('all')"
+                    class="px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all"
+                >
+                    Ver Todos
+                </button>
             </div>
-        
+
             <div id="next-fixture-container" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                </div>
-        
+                <p class="text-sm text-gray-500">A carregar jogos...</p>
+            </div>
+
             <div id="all-fixtures-container" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 hidden">
-                </div>
+                <p class="text-sm text-gray-500">A carregar calendário...</p>
+            </div>
         </section>
 
+        <!-- TABLE -->
         <section id="table">
-            <h3 class="text-3xl font-black mb-8 border-l-8 border-red-600 pl-4 italic uppercase">Classificação</h3>
+            <h3 class="text-3xl font-black mb-8 border-l-8 border-red-600 pl-4 italic uppercase">
+                Classificação
+            </h3>
+
             <div class="overflow-x-auto bg-white rounded-lg shadow-xl border-2 border-red-600">
                 <table class="w-full text-left">
                     <thead class="bg-red-600 text-white text-xs uppercase font-black">
@@ -64,119 +119,54 @@
                             <th class="p-4">Equipa</th>
                             <th class="p-4 text-center">J</th>
                             <th class="p-4 text-center">V</th>
+                            <th class="p-4 text-center">E</th>
+                            <th class="p-4 text-center">D</th>
                             <th class="p-4 text-center text-yellow-300">PTS</th>
                         </tr>
                     </thead>
                     <tbody id="league-table-body" class="font-bold">
-                        </tbody>
+                        <tr>
+                            <td colspan="6" class="p-4 text-sm text-gray-500">A carregar classificação...</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </section>
 
+        <!-- STATS -->
         <section id="stats" class="grid lg:grid-cols-2 gap-12">
             <div>
-                <h3 class="text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-green-500">🏆 TOP SCORERS</h3>
-                <div class="bg-white rounded border-2 border-black overflow-hidden" id="top-scorers-list"></div>
+                <h3 class="text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-green-500">
+                    🏆 TOP SCORERS
+                </h3>
+                <div class="bg-white rounded border-2 border-black overflow-hidden" id="top-scorers-list">
+                    <p class="p-4 text-sm text-gray-500">A carregar marcadores...</p>
+                </div>
             </div>
+
             <div>
-                <h3 class="text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-yellow-400">🟨 DISCIPLINE</h3>
-                <div class="bg-white rounded border-2 border-black overflow-hidden" id="discipline-list"></div>
+                <h3 class="text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-yellow-400">
+                    🟨 DISCIPLINE
+                </h3>
+                <div class="bg-white rounded border-2 border-black overflow-hidden" id="discipline-list">
+                    <p class="p-4 text-sm text-gray-500">A carregar disciplina...</p>
+                </div>
             </div>
         </section>
 
     </main>
 
+    <!-- FOOTER -->
     <footer class="bg-black text-white py-12 text-center border-t-8 border-red-600">
-        <p class="font-black italic text-2xl mb-2">LOW HALL <span class="text-yellow-400">LEAGUE</span></p>
+        <p class="font-black italic text-2xl mb-2">
+            LOW HALL <span class="text-yellow-400">LEAGUE</span>
+        </p>
         <div class="w-16 h-1 bg-red-600 mx-auto mb-4"></div>
-        <p class="text-gray-500 text-xs tracking-widest uppercase">E17 Football Excellence • © 2026</p>
+        <p class="text-gray-500 text-xs tracking-widest uppercase">
+            E17 Football Excellence • © 2026
+        </p>
     </footer>
 
-    <script>
-        const fixtures = [
-            { home: 'Sporting E17', away: 'Walthamstow FC', date: '05 APR', time: '10:00', venue: 'Pitch 1', score: null },
-            { home: 'Low Hall Utd', away: 'Lea Bridge City', date: '05 APR', time: '11:30', venue: 'Pitch 2', score: null },
-            { home: 'Sporting E17', away: 'Marshes FC', date: '22 MAR', time: '10:00', venue: 'Pitch 1', score: [2, 1] },
-        ];
-
-        const teams = [
-            { name: 'Sporting E17', played: 1, won: 1, points: 3 },
-            { name: 'Marshes FC', played: 1, won: 0, points: 0 },
-            { name: 'Low Hall Utd', played: 0, won: 0, points: 0 },
-        ];
-
-        const topScorers = [
-            { name: 'Ricardo Pereira', team: 'Sporting E17', goals: 2 }
-        ];
-
-        const discipline = [
-            { name: 'João Santos', team: 'Higham Hill', cards: '🟨' }
-        ];
-
-        function showTab(type) {
-            const next = document.getElementById('next-fixture-container');
-            const all = document.getElementById('all-fixtures-container');
-            const btnNext = document.getElementById('btn-next');
-            const btnAll = document.getElementById('btn-all');
-
-            if (type === 'next') {
-                next.classList.remove('hidden');
-                all.classList.add('hidden');
-                btnNext.className = "px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800";
-                btnAll.className = "px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400";
-            } else {
-                next.classList.add('hidden');
-                all.classList.remove('hidden');
-                btnAll.className = "px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800";
-                btnNext.className = "px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400";
-            }
-        }
-
-        function init() {
-            const nextContainer = document.getElementById('next-fixture-container');
-            const allContainer = document.getElementById('all-fixtures-container');
-            
-            fixtures.forEach(match => {
-                const card = `
-                    <div class="bg-red-700 p-6 rounded shadow-lg border-b-4 border-red-900 text-white">
-                        <span class="text-[10px] font-black text-yellow-400 uppercase tracking-widest">${match.date} @ ${match.time}</span>
-                        <div class="flex items-center justify-between mt-2 font-black italic uppercase text-sm">
-                            <span class="flex-1 text-right">${match.home}</span>
-                            <span class="mx-3 bg-yellow-400 text-black px-2 py-1 rounded text-xs font-black">
-                                ${match.score ? `${match.score[0]}-${match.score[1]}` : 'VS'}
-                            </span>
-                            <span class="flex-1 text-left">${match.away}</span>
-                        </div>
-                    </div>
-                `;
-                allContainer.innerHTML += card;
-                if(!match.score && nextContainer.innerHTML === "") nextContainer.innerHTML = card;
-            });
-
-            const tableBody = document.getElementById('league-table-body');
-            teams.forEach(team => {
-                tableBody.innerHTML += `
-                    <tr class="border-b border-gray-200 hover:bg-red-50 transition-colors">
-                        <td class="p-4 text-sm uppercase">${team.name}</td>
-                        <td class="p-4 text-center text-sm">${team.played}</td>
-                        <td class="p-4 text-center text-sm">${team.won}</td>
-                        <td class="p-4 text-center font-black text-green-600 text-lg">${team.points}</td>
-                    </tr>
-                `;
-            });
-
-            const scorerList = document.getElementById('top-scorers-list');
-            topScorers.forEach(s => {
-                scorerList.innerHTML += `
-                    <div class="flex justify-between items-center p-4 border-b border-gray-100">
-                        <div><p class="font-black text-sm uppercase">${s.name}</p><p class="text-[10px] text-green-600 font-bold uppercase">${s.team}</p></div>
-                        <span class="font-black text-2xl italic text-red-600">${s.goals}</span>
-                    </div>
-                `;
-            });
-        }
-
-        window.onload = init;
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
