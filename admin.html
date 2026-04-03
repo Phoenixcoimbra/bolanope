@@ -10,10 +10,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -23,76 +20,50 @@
             <h1 class="text-2xl font-black italic">
                 LOW HALL <span class="text-red-500">ADMIN</span>
             </h1>
-            <a href="index.html" class="text-sm font-bold hover:text-yellow-400">Back to site</a>
+
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-sm font-bold hover:text-yellow-400">Back to site</a>
+                <button id="logout-btn" class="text-sm font-bold text-red-400 hover:text-yellow-400">Logout</button>
+            </div>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-8 space-y-10">
 
-        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-red-600">
-            <h2 class="text-2xl font-black mb-4">Add Team</h2>
-
-            <form id="team-form" class="grid md:grid-cols-2 gap-4">
-                <input id="team-name" type="text" placeholder="Team name" class="border rounded-lg p-3" required />
-                <input id="team-slug" type="text" placeholder="team-slug" class="border rounded-lg p-3" required />
-                <input id="team-logo" type="text" placeholder="Logo URL (optional)" class="border rounded-lg p-3 md:col-span-2" />
-                <textarea id="team-description" placeholder="Team description" class="border rounded-lg p-3 md:col-span-2 min-h-[120px]"></textarea>
-
-                <button type="submit" class="bg-red-600 text-white font-black rounded-lg px-5 py-3 w-fit">
-                    Add Team
-                </button>
-            </form>
-
-            <p id="team-message" class="mt-4 text-sm font-bold"></p>
-        </section>
-
-        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-yellow-400">
-            <h2 class="text-2xl font-black mb-4">Add Player</h2>
-
-            <form id="player-form" class="grid md:grid-cols-2 gap-4">
-                <select id="player-team" class="border rounded-lg p-3" required>
-                    <option value="">Select team</option>
-                </select>
-
-                <input id="player-name" type="text" placeholder="Player name" class="border rounded-lg p-3" required />
-                <input id="player-number" type="number" placeholder="Shirt number" class="border rounded-lg p-3" />
-                <input id="player-position" type="text" placeholder="Position" class="border rounded-lg p-3" />
-
-                <input id="player-games" type="number" placeholder="Games played" class="border rounded-lg p-3" value="0" />
-                <input id="player-goals" type="number" placeholder="Goals" class="border rounded-lg p-3" value="0" />
-                <input id="player-yellow" type="number" placeholder="Yellow cards" class="border rounded-lg p-3" value="0" />
-                <input id="player-red" type="number" placeholder="Red cards" class="border rounded-lg p-3" value="0" />
-
-                <button type="submit" class="bg-yellow-500 text-black font-black rounded-lg px-5 py-3 w-fit">
-                    Add Player
-                </button>
-            </form>
-
-            <p id="player-message" class="mt-4 text-sm font-bold"></p>
-        </section>
-
         <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-green-600">
-            <h2 class="text-2xl font-black mb-4">Update Match Score</h2>
+            <h2 class="text-2xl font-black mb-4">Add Goal</h2>
 
-            <form id="score-form" class="grid md:grid-cols-2 gap-4">
+            <form id="goal-form" class="grid md:grid-cols-2 gap-4">
                 <select id="fixture-select" class="border rounded-lg p-3 md:col-span-2" required>
                     <option value="">Select fixture</option>
                 </select>
 
-                <input id="home-score" type="number" placeholder="Home score" class="border rounded-lg p-3" required />
-                <input id="away-score" type="number" placeholder="Away score" class="border rounded-lg p-3" required />
+                <select id="scorer-select" class="border rounded-lg p-3" required disabled>
+                    <option value="">Select scorer</option>
+                </select>
+
+                <input id="goal-minute" type="number" min="1" max="130" placeholder="Minute (optional)" class="border rounded-lg p-3" />
 
                 <button type="submit" class="bg-green-600 text-white font-black rounded-lg px-5 py-3 w-fit">
-                    Save Score
+                    Add Goal
                 </button>
             </form>
 
-            <p id="score-message" class="mt-4 text-sm font-bold"></p>
+            <p id="goal-message" class="mt-4 text-sm font-bold"></p>
         </section>
 
-        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-black">
-            <h2 class="text-2xl font-black mb-4">Current Teams</h2>
-            <div id="teams-list" class="grid gap-3"></div>
+        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-yellow-400">
+            <h2 class="text-2xl font-black mb-4">Current Match Score</h2>
+            <div id="current-score-box" class="text-sm text-gray-600">
+                Select a fixture to view the current score.
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-red-600">
+            <h2 class="text-2xl font-black mb-4">Goals in Selected Match</h2>
+            <div id="match-goals-list" class="space-y-3">
+                <p class="text-sm text-gray-500">No fixture selected.</p>
+            </div>
         </section>
 
     </main>
