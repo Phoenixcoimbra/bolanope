@@ -4,9 +4,6 @@
 const SUPABASE_URL = 'https://ecucdtbdwybbrsoebpxm.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_LhCp8yCM9qUNeVKGkmF_nw_Hnw9DFst';
 
-//NEXT_PUBLIC_SUPABASE_URL=https://ecucdtbdwybbrsoebpxm.supabase.co
-//NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sb_publishable_LhCp8yCM9qUNeVKGkmF_nw_Hnw9DFst
-
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ===============================
@@ -187,6 +184,7 @@ async function loadLeagueTable() {
         .select(`
             id,
             name,
+            slug,
             played,
             won,
             drawn,
@@ -223,7 +221,11 @@ async function loadLeagueTable() {
     teams.forEach(team => {
         tableBody.innerHTML += `
             <tr class="border-b border-gray-200 hover:bg-red-50 transition-colors">
-                <td class="p-4 text-sm uppercase font-bold">${escapeHtml(team.name)}</td>
+                <td class="p-4 text-sm uppercase font-bold">
+                    <a href="team.html?slug=${encodeURIComponent(team.slug)}" class="hover:text-red-600 transition-colors">
+                        ${escapeHtml(team.name)}
+                    </a>
+                </td>
                 <td class="p-4 text-center text-sm">${team.played ?? 0}</td>
                 <td class="p-4 text-center text-sm text-green-600 font-bold">${team.won ?? 0}</td>
                 <td class="p-4 text-center text-sm">${team.drawn ?? 0}</td>
@@ -235,7 +237,79 @@ async function loadLeagueTable() {
 }
 
 // ===============================
-// 5. TOP SCORERS
+// 5. TEAMS SECTION
+// ===============================
+async function loadTeams() {
+    const container = document.getElementById('teams-container');
+    if (!container) return;
+
+    container.innerHTML = '<p class="text-sm text-gray-500">A carregar equipas...</p>';
+
+    const { data: teams, error } = await supabaseClient
+        .from('teams')
+        .select(`
+            id,
+            name,
+            slug,
+            played,
+            won,
+            drawn,
+            lost,
+            points
+        `)
+        .order('name', { ascending: true });
+
+    if (error) {
+        console.error('Erro ao carregar equipas:', error);
+        container.innerHTML = '<p class="text-red-600 font-bold">Erro ao carregar equipas.</p>';
+        return;
+    }
+
+    container.innerHTML = '';
+
+    if (!teams || teams.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">Sem equipas disponíveis.</p>';
+        return;
+    }
+
+    teams.forEach(team => {
+        container.innerHTML += `
+            <a
+                href="team.html?slug=${encodeURIComponent(team.slug)}"
+                class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-5 hover:shadow-2xl hover:-translate-y-1 transition-all block"
+            >
+                <p class="text-xs uppercase font-black text-gray-500 mb-2">Equipa</p>
+                <h4 class="text-lg font-black italic uppercase mb-4">${escapeHtml(team.name)}</h4>
+
+                <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase">
+                    <div class="bg-gray-100 rounded p-2 text-center">
+                        <span class="block text-gray-500">J</span>
+                        <span class="text-black">${team.played ?? 0}</span>
+                    </div>
+                    <div class="bg-gray-100 rounded p-2 text-center">
+                        <span class="block text-gray-500">PTS</span>
+                        <span class="text-green-600">${team.points ?? 0}</span>
+                    </div>
+                    <div class="bg-gray-100 rounded p-2 text-center">
+                        <span class="block text-gray-500">V</span>
+                        <span class="text-black">${team.won ?? 0}</span>
+                    </div>
+                    <div class="bg-gray-100 rounded p-2 text-center">
+                        <span class="block text-gray-500">E/D</span>
+                        <span class="text-black">${team.drawn ?? 0}/${team.lost ?? 0}</span>
+                    </div>
+                </div>
+
+                <p class="mt-4 text-xs font-black uppercase text-red-600">
+                    Ver perfil →
+                </p>
+            </a>
+        `;
+    });
+}
+
+// ===============================
+// 6. TOP SCORERS
 // ===============================
 async function loadTopScorers() {
     const scorersList = document.getElementById('top-scorers-list');
@@ -283,7 +357,7 @@ async function loadTopScorers() {
 }
 
 // ===============================
-// 6. DISCIPLINE
+// 7. DISCIPLINE
 // ===============================
 async function loadDiscipline() {
     const discList = document.getElementById('discipline-list');
@@ -341,7 +415,7 @@ async function loadDiscipline() {
 }
 
 // ===============================
-// 7. TAB CONTROLLER
+// 8. TAB CONTROLLER
 // ===============================
 function showTab(tab) {
     const nextCont = document.getElementById('next-fixture-container');
@@ -373,13 +447,14 @@ function showTab(tab) {
 }
 
 // ===============================
-// 8. INIT
+// 9. INIT
 // ===============================
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await Promise.all([
             loadFixtures(),
             loadLeagueTable(),
+            loadTeams(),
             loadTopScorers(),
             loadDiscipline()
         ]);

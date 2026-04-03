@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            scroll-behaviour: smooth;
+            scroll-behavior: smooth;
         }
 
         .red-panel {
@@ -27,7 +27,6 @@
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-    <!-- NAV -->
     <nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-2xl font-black tracking-tighter italic">
@@ -51,6 +50,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="#teams" class="py-2 hover:text-yellow-400 transition-colors">
+                        Equipas
+                    </a>
+                </li>
+                <li>
                     <a href="#stats" class="py-2 hover:text-yellow-400 transition-colors">
                         Stats
                     </a>
@@ -59,7 +63,6 @@
         </div>
     </nav>
 
-    <!-- HERO -->
     <header class="red-panel text-white py-16 px-4 text-center border-b-8 border-black">
         <h2 class="text-4xl md:text-6xl font-black mb-2 italic uppercase tracking-tighter yellow-glow">
             Community Football Tournament 2026
@@ -69,10 +72,8 @@
         </p>
     </header>
 
-    <!-- MAIN -->
     <main class="container mx-auto px-4 py-8 space-y-16">
 
-        <!-- FIXTURES -->
         <section id="fixtures">
             <div class="flex items-center mb-8">
                 <div class="h-10 w-2 bg-yellow-400 mr-4"></div>
@@ -106,7 +107,6 @@
             </div>
         </section>
 
-        <!-- TABLE -->
         <section id="table">
             <h3 class="text-3xl font-black mb-8 border-l-8 border-red-600 pl-4 italic uppercase">
                 Classificação
@@ -133,7 +133,16 @@
             </div>
         </section>
 
-        <!-- STATS -->
+        <section id="teams">
+            <h3 class="text-3xl font-black mb-8 border-l-8 border-yellow-400 pl-4 italic uppercase">
+                Equipas
+            </h3>
+
+            <div id="teams-container" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                <p class="text-sm text-gray-500">A carregar equipas...</p>
+            </div>
+        </section>
+
         <section id="stats" class="grid lg:grid-cols-2 gap-12">
             <div>
                 <h3 class="text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-green-500">
@@ -156,7 +165,6 @@
 
     </main>
 
-    <!-- FOOTER -->
     <footer class="bg-black text-white py-12 text-center border-t-8 border-red-600">
         <p class="font-black italic text-2xl mb-2">
             LOW HALL <span class="text-yellow-400">LEAGUE</span>
