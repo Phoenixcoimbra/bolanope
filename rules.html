@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regras | Low Hall League</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hero-bg {
+            background: linear-gradient(145deg, #111827, #dc2626);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+<nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="index.html" class="text-2xl font-black italic">
+            LOW HALL <span class="text-red-500">LEAGUE</span>
+        </a>
+
+        <div class="flex flex-col md:flex-row items-center gap-4">
+            <div class="flex items-center gap-6">
+                <a href="index.html" class="hover:text-yellow-400" data-i18n="nav_home">Home</a>
+                <a href="rules.html" class="hover:text-yellow-400" data-i18n="nav_rules">Regras</a>
+            </div>
+
+            <div class="flex gap-2 text-xs font-black uppercase">
+                <button onclick="setLang('pt')" class="hover:text-yellow-400">PT</button>
+                <span>|</span>
+                <button onclick="setLang('en')" class="hover:text-yellow-400">EN</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-bg text-white py-16 text-center border-b-8 border-black">
+    <h1 class="text-5xl font-black italic uppercase" data-i18n="rules_title">Regras & Regulamento</h1>
+</header>
+
+<main class="container mx-auto px-4 py-12 space-y-12">
+
+    <section class="bg-white p-6 rounded-xl shadow border-l-8 border-red-600">
+        <h2 class="text-2xl font-black mb-4" data-i18n="competition_title">Formato da Competição</h2>
+        <p data-i18n="competition_text">
+            Campeonato com 5 equipas, disputado em duas voltas (casa e fora). Todos os jogos decorrem aos sábados no Low Hall Sports Ground.
+        </p>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow border-l-8 border-yellow-400">
+        <h2 class="text-2xl font-black mb-4" data-i18n="matchday_title">Responsabilidades no Jogo</h2>
+        <ul class="list-disc ml-6 space-y-2">
+            <li data-i18n="matchday_1">A equipa da casa monta e retira as redes</li>
+            <li data-i18n="matchday_2">Pagamento do árbitro 30 minutos antes do jogo</li>
+            <li data-i18n="matchday_3">Pagamento dividido 50/50 entre as duas equipas</li>
+        </ul>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow border-l-8 border-green-500">
+        <h2 class="text-2xl font-black mb-4" data-i18n="conduct_title">Conduta</h2>
+        <ul class="list-disc ml-6 space-y-2">
+            <li data-i18n="conduct_1">Respeito total por árbitros e adversários</li>
+            <li data-i18n="conduct_2">É proibida linguagem abusiva</li>
+            <li data-i18n="conduct_3">É proibido comportamento violento</li>
+            <li data-i18n="conduct_4">O capitão é responsável pela conduta da equipa</li>
+        </ul>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow border-l-8 border-yellow-500">
+        <h2 class="text-2xl font-black mb-4" data-i18n="fines_title">Multas</h2>
+        <ul class="list-disc ml-6 space-y-2">
+            <li data-i18n="fines_1">Cartão amarelo: £5</li>
+            <li data-i18n="fines_2">Cartão vermelho: £10</li>
+            <li data-i18n="fines_3">Atraso no pagamento do árbitro: £10</li>
+            <li data-i18n="fines_4">Não montar ou desmontar as redes: £10</li>
+            <li data-i18n="fines_5">Falta de comparência: £30</li>
+        </ul>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow border-l-8 border-red-500">
+        <h2 class="text-2xl font-black mb-4" data-i18n="suspensions_title">Suspensões</h2>
+        <ul class="list-disc ml-6 space-y-2">
+            <li data-i18n="susp_1">2 amarelos acumulados: suspensão de 1 jogo</li>
+            <li data-i18n="susp_2">Cartão vermelho direto: mínimo 1 jogo de suspensão</li>
+            <li data-i18n="susp_3">Casos graves: decisão da organização</li>
+        </ul>
+    </section>
+
+</main>
+
+<footer class="bg-black text-white py-10 text-center border-t-8 border-red-600">
+    <p class="font-black italic text-xl">LOW HALL LEAGUE</p>
+</footer>
+
+<script src="translations.js"></script>
+</body>
+</html>

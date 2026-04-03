@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Team Page</title>
+    <title>Perfil da Equipa</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -23,126 +23,150 @@
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-    <nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <a href="index.html" class="text-2xl font-black tracking-tighter italic">
-                LOW HALL <span class="text-red-500 underline decoration-yellow-400 decoration-4 underline-offset-4">LEAGUE</span>
-            </a>
+<nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="index.html" class="text-2xl font-black tracking-tighter italic">
+            LOW HALL <span class="text-red-500 underline decoration-yellow-400 decoration-4 underline-offset-4">LEAGUE</span>
+        </a>
 
+        <div class="flex flex-col md:flex-row items-center gap-4">
             <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm uppercase font-black tracking-wider">
-                <li><a href="index.html" class="py-2 hover:text-yellow-400 transition-colors">Home</a></li>
-                <li><a href="#roster" class="py-2 hover:text-yellow-400 transition-colors">Plantel</a></li>
-                <li><a href="#stats" class="py-2 hover:text-green-400 transition-colors">Stats</a></li>
-                <li><a href="#fixtures" class="py-2 hover:text-yellow-400 transition-colors">Jogos</a></li>
+                <li><a href="index.html" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_home">Home</a></li>
+                <li><a href="#profile" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_profile">Perfil</a></li>
+                <li><a href="#roster" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_roster">Plantel</a></li>
+                <li><a href="#stats" class="py-2 hover:text-green-400 transition-colors" data-i18n="nav_stats">Stats</a></li>
+                <li><a href="#fixtures" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_matches">Jogos</a></li>
+                <li><a href="rules.html" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_rules">Regras</a></li>
             </ul>
+
+            <div class="flex items-center gap-2 text-xs font-black uppercase">
+                <button onclick="setLang('pt')" class="hover:text-yellow-400 transition-colors">PT</button>
+                <span class="text-gray-500">|</span>
+                <button onclick="setLang('en')" class="hover:text-yellow-400 transition-colors">EN</button>
+            </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <header class="hero-bg text-white py-16 px-4 border-b-8 border-black">
-        <div class="container mx-auto">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                <div>
-                    <p class="text-yellow-300 text-xs uppercase font-bold tracking-[0.3em] mb-2">Team Profile</p>
-                    <h1 id="team-name" class="text-4xl md:text-6xl font-black italic uppercase">A carregar...</h1>
-                    <p id="team-description" class="mt-4 text-sm md:text-base text-gray-200 max-w-3xl">
-                        A carregar descrição da equipa...
-                    </p>
-                </div>
+<header class="hero-bg text-white py-16 px-4 border-b-8 border-black">
+    <div class="container mx-auto">
+        <div class="grid md:grid-cols-[180px_1fr_240px] gap-8 items-center">
 
-                <div class="bg-white/10 border border-white/20 rounded-2xl p-4 min-w-[220px]">
-                    <p class="text-xs uppercase font-bold text-yellow-300 mb-3">Resumo</p>
-                    <div class="space-y-2 text-sm font-bold">
-                        <div class="flex justify-between">
-                            <span>Jogadores</span>
-                            <span id="summary-players">0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Golos</span>
-                            <span id="summary-goals">0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Amarelos</span>
-                            <span id="summary-yellow">0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Vermelhos</span>
-                            <span id="summary-red">0</span>
-                        </div>
+            <div class="flex justify-center md:justify-start">
+                <div class="w-40 h-40 bg-white rounded-2xl shadow-2xl border-4 border-yellow-400 flex items-center justify-center overflow-hidden">
+                    <img id="team-logo" src="" alt="Logo da equipa" class="w-full h-full object-cover hidden" />
+                    <div id="team-logo-placeholder" class="text-center px-4">
+                        <p class="text-black font-black text-lg uppercase" data-i18n="logo_text">Logo</p>
+                        <p class="text-gray-500 text-xs uppercase mt-1" data-i18n="no_logo">Sem logo</p>
                     </div>
                 </div>
             </div>
+
+            <div>
+                <p class="text-yellow-300 text-xs uppercase font-bold tracking-[0.3em] mb-2" data-i18n="team_profile_label">Team Profile</p>
+                <h1 id="team-name" class="text-4xl md:text-6xl font-black italic uppercase" data-i18n="loading_team">A carregar...</h1>
+                <p id="team-tagline" class="mt-3 text-sm md:text-base text-yellow-200 font-bold uppercase tracking-wider" data-i18n="team_tagline">
+                    Low Hall League 2026
+                </p>
+            </div>
+
+            <div class="bg-white/10 border border-white/20 rounded-2xl p-4 min-w-[220px]">
+                <p class="text-xs uppercase font-bold text-yellow-300 mb-3" data-i18n="summary_title">Resumo</p>
+                <div class="space-y-2 text-sm font-bold">
+                    <div class="flex justify-between"><span data-i18n="summary_players">Jogadores</span><span id="summary-players">0</span></div>
+                    <div class="flex justify-between"><span data-i18n="summary_goals">Golos</span><span id="summary-goals">0</span></div>
+                    <div class="flex justify-between"><span data-i18n="summary_yellow">Amarelos</span><span id="summary-yellow">0</span></div>
+                    <div class="flex justify-between"><span data-i18n="summary_red">Vermelhos</span><span id="summary-red">0</span></div>
+                </div>
+            </div>
+
         </div>
-    </header>
+    </div>
+</header>
 
-    <main class="container mx-auto px-4 py-10 space-y-16">
+<main class="container mx-auto px-4 py-10 space-y-16">
 
-        <section id="roster">
-            <div class="flex items-center mb-8">
-                <div class="h-10 w-2 bg-red-600 mr-4"></div>
-                <h2 class="text-3xl font-black italic uppercase">Plantel</h2>
-            </div>
+    <section id="profile">
+        <div class="flex items-center mb-8">
+            <div class="h-10 w-2 bg-red-600 mr-4"></div>
+            <h2 class="text-3xl font-black italic uppercase" data-i18n="team_profile_title">Perfil da Equipa</h2>
+        </div>
 
-            <div class="overflow-x-auto bg-white rounded-lg shadow-xl border-2 border-red-600">
-                <table class="w-full text-left">
-                    <thead class="bg-red-600 text-white text-xs uppercase font-black">
-                        <tr>
-                            <th class="p-4">Jogador</th>
-                            <th class="p-4 text-center">Nº</th>
-                            <th class="p-4 text-center">Posição</th>
-                            <th class="p-4 text-center">Jogos</th>
-                            <th class="p-4 text-center">Golos</th>
-                            <th class="p-4 text-center">🟨</th>
-                            <th class="p-4 text-center">🟥</th>
-                        </tr>
-                    </thead>
-                    <tbody id="roster-table-body" class="font-bold">
-                        <tr>
-                            <td colspan="7" class="p-4 text-sm text-gray-500">A carregar plantel...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        <div class="bg-white rounded-2xl shadow-xl border-l-8 border-red-600 p-8">
+            <p id="team-description" class="text-base leading-8 text-gray-700 whitespace-pre-line" data-i18n="team_description_loading">
+                A carregar descrição da equipa...
+            </p>
+        </div>
+    </section>
 
-        <section id="stats" class="grid lg:grid-cols-3 gap-8">
-            <div class="bg-white rounded-xl shadow-lg border-t-4 border-green-600 p-6">
-                <p class="text-xs uppercase font-black text-gray-500 mb-2">Melhor marcador</p>
-                <h3 id="top-scorer-name" class="text-2xl font-black italic">—</h3>
-                <p id="top-scorer-goals" class="text-sm text-gray-600 mt-2">0 golos</p>
-            </div>
+    <section id="roster">
+        <div class="flex items-center mb-8">
+            <div class="h-10 w-2 bg-red-600 mr-4"></div>
+            <h2 class="text-3xl font-black italic uppercase" data-i18n="team_roster_title">Plantel</h2>
+        </div>
 
-            <div class="bg-white rounded-xl shadow-lg border-t-4 border-yellow-400 p-6">
-                <p class="text-xs uppercase font-black text-gray-500 mb-2">Mais amarelos</p>
-                <h3 id="most-yellow-name" class="text-2xl font-black italic">—</h3>
-                <p id="most-yellow-count" class="text-sm text-gray-600 mt-2">0 cartões</p>
-            </div>
+        <div class="overflow-x-auto bg-white rounded-lg shadow-xl border-2 border-red-600">
+            <table class="w-full text-left">
+                <thead class="bg-red-600 text-white text-xs uppercase font-black">
+                    <tr>
+                        <th class="p-4" data-i18n="player_col">Jogador</th>
+                        <th class="p-4 text-center" data-i18n="number_col">Nº</th>
+                        <th class="p-4 text-center" data-i18n="position_col">Posição</th>
+                        <th class="p-4 text-center" data-i18n="games_col">Jogos</th>
+                        <th class="p-4 text-center" data-i18n="goals_col">Golos</th>
+                        <th class="p-4 text-center">🟨</th>
+                        <th class="p-4 text-center">🟥</th>
+                    </tr>
+                </thead>
+                <tbody id="roster-table-body" class="font-bold">
+                    <tr>
+                        <td colspan="7" class="p-4 text-sm text-gray-500" data-i18n="roster_loading">A carregar plantel...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-            <div class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-6">
-                <p class="text-xs uppercase font-black text-gray-500 mb-2">Mais vermelhos</p>
-                <h3 id="most-red-name" class="text-2xl font-black italic">—</h3>
-                <p id="most-red-count" class="text-sm text-gray-600 mt-2">0 cartões</p>
-            </div>
-        </section>
+    <section id="stats" class="grid lg:grid-cols-3 gap-8">
+        <div class="bg-white rounded-xl shadow-lg border-t-4 border-green-600 p-6">
+            <p class="text-xs uppercase font-black text-gray-500 mb-2" data-i18n="top_scorer_label">Melhor marcador</p>
+            <h3 id="top-scorer-name" class="text-2xl font-black italic">—</h3>
+            <p id="top-scorer-goals" class="text-sm text-gray-600 mt-2">0 golos</p>
+        </div>
 
-        <section id="fixtures">
-            <div class="flex items-center mb-8">
-                <div class="h-10 w-2 bg-yellow-400 mr-4"></div>
-                <h2 class="text-3xl font-black italic uppercase">Jogos da Equipa</h2>
-            </div>
+        <div class="bg-white rounded-xl shadow-lg border-t-4 border-yellow-400 p-6">
+            <p class="text-xs uppercase font-black text-gray-500 mb-2" data-i18n="most_yellow_label">Mais amarelos</p>
+            <h3 id="most-yellow-name" class="text-2xl font-black italic">—</h3>
+            <p id="most-yellow-count" class="text-sm text-gray-600 mt-2">0 cartões</p>
+        </div>
 
-            <div id="team-fixtures-list" class="grid gap-4 md:grid-cols-2">
-                <p class="text-sm text-gray-500">A carregar jogos...</p>
-            </div>
-        </section>
+        <div class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-6">
+            <p class="text-xs uppercase font-black text-gray-500 mb-2" data-i18n="most_red_label">Mais vermelhos</p>
+            <h3 id="most-red-name" class="text-2xl font-black italic">—</h3>
+            <p id="most-red-count" class="text-sm text-gray-600 mt-2">0 cartões</p>
+        </div>
+    </section>
 
-    </main>
+    <section id="fixtures">
+        <div class="flex items-center mb-8">
+            <div class="h-10 w-2 bg-yellow-400 mr-4"></div>
+            <h2 class="text-3xl font-black italic uppercase" data-i18n="team_matches_title">Jogos da Equipa</h2>
+        </div>
 
-    <footer class="bg-black text-white py-12 text-center border-t-8 border-red-600">
-        <p class="font-black italic text-2xl mb-2">LOW HALL <span class="text-yellow-400">LEAGUE</span></p>
-        <div class="w-16 h-1 bg-red-600 mx-auto mb-4"></div>
-        <p class="text-gray-500 text-xs tracking-widest uppercase">Team page • © 2026</p>
-    </footer>
+        <div id="team-fixtures-list" class="grid gap-4 md:grid-cols-2">
+            <p class="text-sm text-gray-500" data-i18n="team_matches_loading">A carregar jogos...</p>
+        </div>
+    </section>
 
-    <script src="team.js"></script>
+</main>
+
+<footer class="bg-black text-white py-12 text-center border-t-8 border-red-600">
+    <p class="font-black italic text-2xl mb-2">LOW HALL <span class="text-yellow-400">LEAGUE</span></p>
+    <div class="w-16 h-1 bg-red-600 mx-auto mb-4"></div>
+    <p class="text-gray-500 text-xs tracking-widest uppercase" data-i18n="footer_text">E17 Football Excellence • © 2026</p>
+</footer>
+
+<script src="translations.js"></script>
+<script src="team.js"></script>
 </body>
 </html>

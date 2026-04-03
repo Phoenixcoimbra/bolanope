@@ -1,14 +1,12 @@
-// ===============================
-// 1. SUPABASE CONFIG
-// ===============================
 const SUPABASE_URL = 'https://ecucdtbdwybbrsoebpxm.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_PUBLISHABLE_KEY';
+const SUPABASE_ANON_KEY = 'sb_publishable_LhCp8yCM9qUNeVKGkmF_nw_Hnw9DFst';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ===============================
-// 2. HELPERS
-// ===============================
+let currentTeam = null;
+let currentPlayers = [];
+let currentFixtures = [];
+
 function getSlugFromUrl() {
     const params = new URLSearchParams(window.location.search);
     return params.get('slug');
@@ -25,10 +23,12 @@ function escapeHtml(value) {
 }
 
 function formatDate(dateString) {
-    if (!dateString) return 'Data por definir';
+    if (!dateString) return t('date_tbd');
 
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-PT', {
+    const lang = getCurrentLang() === 'en' ? 'en-GB' : 'pt-PT';
+
+    return date.toLocaleDateString(lang, {
         day: '2-digit',
         month: 'long',
         year: 'numeric'
@@ -39,15 +39,32 @@ function isPlayedMatch(fixture) {
     return fixture.home_score !== null && fixture.away_score !== null;
 }
 
-// ===============================
-// 3. LOAD TEAM
-// ===============================
+function renderTeamNotFound(message) {
+    document.getElementById('team-name').textContent = t('no_team_found');
+    document.getElementById('team-description').textContent = message;
+    document.getElementById('team-tagline').textContent = t('verify_team_link');
+}
+
+function loadTeamLogo(logoUrl, teamName) {
+    const img = document.getElementById('team-logo');
+    const placeholder = document.getElementById('team-logo-placeholder');
+
+    if (logoUrl && String(logoUrl).trim() !== '') {
+        img.src = logoUrl;
+        img.alt = `Logo ${teamName}`;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+    } else {
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+    }
+}
+
 async function loadTeamPage() {
     const slug = getSlugFromUrl();
 
     if (!slug) {
-        document.getElementById('team-name').textContent = 'Equipa não encontrada';
-        document.getElementById('team-description').textContent = 'Falta o parâmetro slug no URL.';
+        renderTeamNotFound(t('missing_team_slug'));
         return;
     }
 
@@ -55,19 +72,22 @@ async function loadTeamPage() {
         .from('teams')
         .select('*')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
 
-    if (teamError || !team) {
+    if (teamError) {
         console.error('Erro ao carregar equipa:', teamError);
-        document.getElementById('team-name').textContent = 'Equipa não encontrada';
-        document.getElementById('team-description').textContent = 'Não foi possível carregar esta equipa.';
+        renderTeamNotFound(t('team_not_loaded'));
         return;
     }
 
+    if (!team) {
+        renderTeamNotFound(t('no_team_found'));
+        return;
+    }
+
+    currentTeam = team;
     document.title = `${team.name} | Low Hall League`;
-    document.getElementById('team-name').textContent = team.name;
-    document.getElementById('team-description').textContent =
-        team.description || 'Sem descrição disponível para esta equipa.';
+    renderTeamHeader();
 
     await Promise.all([
         loadPlayers(team.id),
@@ -75,17 +95,21 @@ async function loadTeamPage() {
     ]);
 }
 
-// ===============================
-// 4. LOAD PLAYERS
-// ===============================
+function renderTeamHeader() {
+    if (!currentTeam) return;
+
+    document.getElementById('team-name').textContent = currentTeam.name;
+    document.getElementById('team-description').textContent =
+        currentTeam.description || t('no_team_description');
+    document.getElementById('team-tagline').textContent = t('team_tagline');
+
+    loadTeamLogo(currentTeam.logo_url, currentTeam.name);
+}
+
 async function loadPlayers(teamId) {
     const tableBody = document.getElementById('roster-table-body');
 
-    tableBody.innerHTML = `
-        <tr>
-            <td colspan="7" class="p-4 text-sm text-gray-500">A carregar plantel...</td>
-        </tr>
-    `;
+    tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-sm text-gray-500">${t('roster_loading')}</td></tr>`;
 
     const { data: players, error } = await supabaseClient
         .from('players')
@@ -105,28 +129,25 @@ async function loadPlayers(teamId) {
 
     if (error) {
         console.error('Erro ao carregar jogadores:', error);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="7" class="p-4 text-red-600 font-bold">Erro ao carregar jogadores.</td>
-            </tr>
-        `;
+        tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-red-600 font-bold">${t('no_players_registered')}</td></tr>`;
         return;
     }
 
+    currentPlayers = players || [];
+    renderPlayers();
+}
+
+function renderPlayers() {
+    const tableBody = document.getElementById('roster-table-body');
     tableBody.innerHTML = '';
 
-    if (!players || players.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="7" class="p-4 text-gray-500">Ainda não existem jogadores registados para esta equipa.</td>
-            </tr>
-        `;
-
+    if (!currentPlayers.length) {
+        tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-gray-500">${t('no_players_registered')}</td></tr>`;
         document.getElementById('summary-players').textContent = '0';
         document.getElementById('summary-goals').textContent = '0';
         document.getElementById('summary-yellow').textContent = '0';
         document.getElementById('summary-red').textContent = '0';
-
+        renderPlayerHighlights([]);
         return;
     }
 
@@ -134,7 +155,7 @@ async function loadPlayers(teamId) {
     let totalYellow = 0;
     let totalRed = 0;
 
-    players.forEach(player => {
+    currentPlayers.forEach(player => {
         const goals = player.goals ?? 0;
         const yellow = player.yellow_cards ?? 0;
         const red = player.red_cards ?? 0;
@@ -157,38 +178,32 @@ async function loadPlayers(teamId) {
         `;
     });
 
-    document.getElementById('summary-players').textContent = players.length;
+    document.getElementById('summary-players').textContent = currentPlayers.length;
     document.getElementById('summary-goals').textContent = totalGoals;
     document.getElementById('summary-yellow').textContent = totalYellow;
     document.getElementById('summary-red').textContent = totalRed;
 
-    renderPlayerHighlights(players);
+    renderPlayerHighlights(currentPlayers);
 }
 
-// ===============================
-// 5. PLAYER HIGHLIGHTS
-// ===============================
 function renderPlayerHighlights(players) {
     const topScorer = [...players].sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0))[0];
     const mostYellow = [...players].sort((a, b) => (b.yellow_cards ?? 0) - (a.yellow_cards ?? 0))[0];
     const mostRed = [...players].sort((a, b) => (b.red_cards ?? 0) - (a.red_cards ?? 0))[0];
 
     document.getElementById('top-scorer-name').textContent = topScorer?.name || '—';
-    document.getElementById('top-scorer-goals').textContent = `${topScorer?.goals ?? 0} golos`;
+    document.getElementById('top-scorer-goals').textContent = `${topScorer?.goals ?? 0} ${t('goals_label')}`;
 
     document.getElementById('most-yellow-name').textContent = mostYellow?.name || '—';
-    document.getElementById('most-yellow-count').textContent = `${mostYellow?.yellow_cards ?? 0} cartões amarelos`;
+    document.getElementById('most-yellow-count').textContent = `${mostYellow?.yellow_cards ?? 0} ${t('yellow_cards_label')}`;
 
     document.getElementById('most-red-name').textContent = mostRed?.name || '—';
-    document.getElementById('most-red-count').textContent = `${mostRed?.red_cards ?? 0} cartões vermelhos`;
+    document.getElementById('most-red-count').textContent = `${mostRed?.red_cards ?? 0} ${t('red_cards_label')}`;
 }
 
-// ===============================
-// 6. LOAD TEAM FIXTURES
-// ===============================
 async function loadFixtures(teamId, teamName) {
     const fixturesList = document.getElementById('team-fixtures-list');
-    fixturesList.innerHTML = '<p class="text-sm text-gray-500">A carregar jogos...</p>';
+    fixturesList.innerHTML = `<p class="text-sm text-gray-500">${t('team_matches_loading')}</p>`;
 
     const { data: fixtures, error } = await supabaseClient
         .from('fixtures')
@@ -200,8 +215,7 @@ async function loadFixtures(teamId, teamName) {
             away_score,
             status,
             home_team:home_team_id ( id, name ),
-            away_team:away_team_id ( id, name ),
-            rest_team:rest_team_id ( id, name )
+            away_team:away_team_id ( id, name )
         `)
         .or(`home_team_id.eq.${teamId},away_team_id.eq.${teamId}`)
         .order('match_date', { ascending: true })
@@ -209,25 +223,31 @@ async function loadFixtures(teamId, teamName) {
 
     if (error) {
         console.error('Erro ao carregar jogos da equipa:', error);
-        fixturesList.innerHTML = '<p class="text-red-600 font-bold">Erro ao carregar jogos.</p>';
+        fixturesList.innerHTML = `<p class="text-red-600 font-bold">${t('no_team_matches')}</p>`;
         return;
     }
 
+    currentFixtures = fixtures || [];
+    renderFixtures(teamName);
+}
+
+function renderFixtures(teamName) {
+    const fixturesList = document.getElementById('team-fixtures-list');
     fixturesList.innerHTML = '';
 
-    if (!fixtures || fixtures.length === 0) {
-        fixturesList.innerHTML = '<p class="text-gray-500">Ainda não existem jogos para esta equipa.</p>';
+    if (!currentFixtures.length) {
+        fixturesList.innerHTML = `<p class="text-gray-500">${t('no_team_matches')}</p>`;
         return;
     }
 
-    fixtures.forEach(fixture => {
-        const homeName = fixture.home_team?.name || 'Equipa Casa';
-        const awayName = fixture.away_team?.name || 'Equipa Fora';
+    currentFixtures.forEach(fixture => {
+        const homeName = fixture.home_team?.name || 'Home';
+        const awayName = fixture.away_team?.name || 'Away';
 
         const isHomeTeam = homeName === teamName;
         const isAwayTeam = awayName === teamName;
 
-        let resultLabel = 'Por jogar';
+        let resultLabel = t('not_played');
         let resultClass = 'bg-gray-100 text-gray-600';
 
         if (isPlayedMatch(fixture)) {
@@ -235,13 +255,13 @@ async function loadFixtures(teamId, teamName) {
             const awayScore = fixture.away_score;
 
             if ((isHomeTeam && homeScore > awayScore) || (isAwayTeam && awayScore > homeScore)) {
-                resultLabel = 'Vitória';
+                resultLabel = t('win');
                 resultClass = 'bg-green-100 text-green-700';
             } else if (homeScore === awayScore) {
-                resultLabel = 'Empate';
+                resultLabel = t('draw');
                 resultClass = 'bg-yellow-100 text-yellow-700';
             } else {
-                resultLabel = 'Derrota';
+                resultLabel = t('loss');
                 resultClass = 'bg-red-100 text-red-700';
             }
         }
@@ -270,9 +290,22 @@ async function loadFixtures(teamId, teamName) {
     });
 }
 
-// ===============================
-// 7. INIT
-// ===============================
+function rerenderLanguageSensitiveContent() {
+    applyTranslations();
+
+    if (currentTeam) {
+        renderTeamHeader();
+    }
+
+    renderPlayers();
+
+    if (currentTeam) {
+        renderFixtures(currentTeam.name);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await loadTeamPage();
 });
+
+window.addEventListener('languageChanged', rerenderLanguageSensitiveContent);

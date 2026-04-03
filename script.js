@@ -1,20 +1,15 @@
-// ===============================
-// 1. SUPABASE CONFIG
-// ===============================
 const SUPABASE_URL = 'https://ecucdtbdwybbrsoebpxm.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_LhCp8yCM9qUNeVKGkmF_nw_Hnw9DFst';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ===============================
-// 2. HELPERS
-// ===============================
 function formatDate(dateString) {
-    if (!dateString) return 'Data por definir';
+    if (!dateString) return t('date_tbd');
 
     const date = new Date(dateString);
+    const lang = getCurrentLang() === 'en' ? 'en-GB' : 'pt-PT';
 
-    return date.toLocaleDateString('pt-PT', {
+    return date.toLocaleDateString(lang, {
         day: '2-digit',
         month: 'short'
     });
@@ -45,17 +40,14 @@ function escapeHtml(value) {
         .replaceAll("'", '&#039;');
 }
 
-// ===============================
-// 3. FIXTURES
-// ===============================
 async function loadFixtures() {
     const nextCont = document.getElementById('next-fixture-container');
     const allCont = document.getElementById('all-fixtures-container');
 
     if (!nextCont || !allCont) return;
 
-    nextCont.innerHTML = '<p class="text-sm text-gray-500">A carregar jogos...</p>';
-    allCont.innerHTML = '<p class="text-sm text-gray-500">A carregar calendário...</p>';
+    nextCont.innerHTML = `<p class="text-sm text-gray-500">${t('loading_games')}</p>`;
+    allCont.innerHTML = `<p class="text-sm text-gray-500">${t('loading_calendar')}</p>`;
 
     const { data: fixtures, error } = await supabaseClient
         .from('fixtures')
@@ -75,8 +67,8 @@ async function loadFixtures() {
 
     if (error) {
         console.error('Erro ao carregar jogos:', error);
-        nextCont.innerHTML = '<p class="text-red-600 font-bold">Erro ao carregar jogos.</p>';
-        allCont.innerHTML = '<p class="text-red-600 font-bold">Erro ao carregar calendário.</p>';
+        nextCont.innerHTML = `<p class="text-red-600 font-bold">${t('no_games')}</p>`;
+        allCont.innerHTML = `<p class="text-red-600 font-bold">${t('no_calendar')}</p>`;
         return;
     }
 
@@ -84,8 +76,8 @@ async function loadFixtures() {
     allCont.innerHTML = '';
 
     if (!fixtures || fixtures.length === 0) {
-        nextCont.innerHTML = '<p class="text-gray-500">Sem jogos disponíveis.</p>';
-        allCont.innerHTML = '<p class="text-gray-500">Sem calendário disponível.</p>';
+        nextCont.innerHTML = `<p class="text-gray-500">${t('no_games')}</p>`;
+        allCont.innerHTML = `<p class="text-gray-500">${t('no_calendar')}</p>`;
         return;
     }
 
@@ -102,8 +94,8 @@ async function loadFixtures() {
     let currentJornada = null;
 
     fixtures.forEach(fixture => {
-        const homeName = escapeHtml(fixture.home_team?.name || 'Equipa Casa');
-        const awayName = escapeHtml(fixture.away_team?.name || 'Equipa Fora');
+        const homeName = escapeHtml(fixture.home_team?.name || 'Home');
+        const awayName = escapeHtml(fixture.away_team?.name || 'Away');
         const restName = escapeHtml(fixture.rest_team?.name || '—');
 
         let homeClass = '';
@@ -115,16 +107,8 @@ async function loadFixtures() {
         }
 
         const statusHtml = isPlayedMatch(fixture)
-            ? `
-                <span class="bg-black text-white px-3 py-1 rounded font-black text-sm tracking-widest">
-                    ${escapeHtml(getScoreDisplay(fixture))}
-                </span>
-            `
-            : `
-                <span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[10px] font-bold uppercase">
-                    ${escapeHtml(formatDate(fixture.match_date))}
-                </span>
-            `;
+            ? `<span class="bg-black text-white px-3 py-1 rounded font-black text-sm tracking-widest">${escapeHtml(getScoreDisplay(fixture))}</span>`
+            : `<span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[10px] font-bold uppercase">${escapeHtml(formatDate(fixture.match_date))}</span>`;
 
         const cardHtml = `
             <div class="bg-white p-4 rounded shadow-sm border flex justify-between items-center border-l-4 border-l-green-500">
@@ -147,7 +131,7 @@ async function loadFixtures() {
                             Jornada ${escapeHtml(fixture.jornada)} — ${escapeHtml(formatDate(fixture.match_date))}
                         </span>
                         <span class="text-[9px] font-bold text-gray-500 uppercase italic">
-                            Descansa: ${restName}
+                            ${t('rest_label')}: ${restName}
                         </span>
                     </div>
                 </div>
@@ -162,22 +146,15 @@ async function loadFixtures() {
     });
 
     if (nextCont.innerHTML.trim() === '') {
-        nextCont.innerHTML = '<p class="text-gray-500">Sem próxima jornada disponível.</p>';
+        nextCont.innerHTML = `<p class="text-gray-500">${t('no_next_round')}</p>`;
     }
 }
 
-// ===============================
-// 4. LEAGUE TABLE
-// ===============================
 async function loadLeagueTable() {
     const tableBody = document.getElementById('league-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `
-        <tr>
-            <td colspan="6" class="p-4 text-sm text-gray-500">A carregar classificação...</td>
-        </tr>
-    `;
+    tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-sm text-gray-500">${t('loading_table')}</td></tr>`;
 
     const { data: teams, error } = await supabaseClient
         .from('teams')
@@ -199,22 +176,14 @@ async function loadLeagueTable() {
 
     if (error) {
         console.error('Erro ao carregar classificação:', error);
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" class="p-4 text-red-600 font-bold">Erro ao carregar classificação.</td>
-            </tr>
-        `;
+        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-red-600 font-bold">${t('loading_table')}</td></tr>`;
         return;
     }
 
     tableBody.innerHTML = '';
 
     if (!teams || teams.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" class="p-4 text-gray-500">Sem equipas disponíveis.</td>
-            </tr>
-        `;
+        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-gray-500">${t('no_teams')}</td></tr>`;
         return;
     }
 
@@ -236,14 +205,11 @@ async function loadLeagueTable() {
     });
 }
 
-// ===============================
-// 5. TEAMS SECTION
-// ===============================
 async function loadTeams() {
     const container = document.getElementById('teams-container');
     if (!container) return;
 
-    container.innerHTML = '<p class="text-sm text-gray-500">A carregar equipas...</p>';
+    container.innerHTML = `<p class="text-sm text-gray-500">${t('loading_teams')}</p>`;
 
     const { data: teams, error } = await supabaseClient
         .from('teams')
@@ -261,14 +227,14 @@ async function loadTeams() {
 
     if (error) {
         console.error('Erro ao carregar equipas:', error);
-        container.innerHTML = '<p class="text-red-600 font-bold">Erro ao carregar equipas.</p>';
+        container.innerHTML = `<p class="text-red-600 font-bold">${t('no_teams')}</p>`;
         return;
     }
 
     container.innerHTML = '';
 
     if (!teams || teams.length === 0) {
-        container.innerHTML = '<p class="text-gray-500">Sem equipas disponíveis.</p>';
+        container.innerHTML = `<p class="text-gray-500">${t('no_teams')}</p>`;
         return;
     }
 
@@ -278,7 +244,7 @@ async function loadTeams() {
                 href="team.html?slug=${encodeURIComponent(team.slug)}"
                 class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-5 hover:shadow-2xl hover:-translate-y-1 transition-all block"
             >
-                <p class="text-xs uppercase font-black text-gray-500 mb-2">Equipa</p>
+                <p class="text-xs uppercase font-black text-gray-500 mb-2">${t('team_label')}</p>
                 <h4 class="text-lg font-black italic uppercase mb-4">${escapeHtml(team.name)}</h4>
 
                 <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase">
@@ -300,22 +266,17 @@ async function loadTeams() {
                     </div>
                 </div>
 
-                <p class="mt-4 text-xs font-black uppercase text-red-600">
-                    Ver perfil →
-                </p>
+                <p class="mt-4 text-xs font-black uppercase text-red-600">${t('view_profile')}</p>
             </a>
         `;
     });
 }
 
-// ===============================
-// 6. TOP SCORERS
-// ===============================
 async function loadTopScorers() {
     const scorersList = document.getElementById('top-scorers-list');
     if (!scorersList) return;
 
-    scorersList.innerHTML = '<p class="p-4 text-sm text-gray-500">A carregar marcadores...</p>';
+    scorersList.innerHTML = `<p class="p-4 text-sm text-gray-500">${t('loading_scorers')}</p>`;
 
     const { data: players, error } = await supabaseClient
         .from('players')
@@ -332,14 +293,14 @@ async function loadTopScorers() {
 
     if (error) {
         console.error('Erro ao carregar marcadores:', error);
-        scorersList.innerHTML = '<p class="p-4 text-red-600 font-bold">Erro ao carregar marcadores.</p>';
+        scorersList.innerHTML = `<p class="p-4 text-red-600 font-bold">${t('no_scorers')}</p>`;
         return;
     }
 
     scorersList.innerHTML = '';
 
     if (!players || players.length === 0) {
-        scorersList.innerHTML = '<p class="p-4 text-gray-500">Ainda sem marcadores registados.</p>';
+        scorersList.innerHTML = `<p class="p-4 text-gray-500">${t('no_scorers')}</p>`;
         return;
     }
 
@@ -356,14 +317,11 @@ async function loadTopScorers() {
     });
 }
 
-// ===============================
-// 7. DISCIPLINE
-// ===============================
 async function loadDiscipline() {
     const discList = document.getElementById('discipline-list');
     if (!discList) return;
 
-    discList.innerHTML = '<p class="p-4 text-sm text-gray-500">A carregar disciplina...</p>';
+    discList.innerHTML = `<p class="p-4 text-sm text-gray-500">${t('loading_discipline')}</p>`;
 
     const { data: players, error } = await supabaseClient
         .from('players')
@@ -380,18 +338,18 @@ async function loadDiscipline() {
 
     if (error) {
         console.error('Erro ao carregar disciplina:', error);
-        discList.innerHTML = '<p class="p-4 text-red-600 font-bold">Erro ao carregar disciplina.</p>';
+        discList.innerHTML = `<p class="p-4 text-red-600 font-bold">${t('no_cards')}</p>`;
         return;
     }
 
-    const filteredPlayers = (players || []).filter(player => {
-        return (player.yellow_cards ?? 0) > 0 || (player.red_cards ?? 0) > 0;
-    });
+    const filteredPlayers = (players || []).filter(player =>
+        (player.yellow_cards ?? 0) > 0 || (player.red_cards ?? 0) > 0
+    );
 
     discList.innerHTML = '';
 
     if (filteredPlayers.length === 0) {
-        discList.innerHTML = '<p class="p-4 text-gray-500">Sem cartões registados.</p>';
+        discList.innerHTML = `<p class="p-4 text-gray-500">${t('no_cards')}</p>`;
         return;
     }
 
@@ -405,7 +363,7 @@ async function loadDiscipline() {
                 <span>
                     <span class="font-bold text-sm">${escapeHtml(player.name)}</span>
                     <small class="block text-red-500 font-bold italic text-[10px] uppercase">
-                        ${escapeHtml(player.team?.name || '')} • Multas: £${fines}
+                        ${escapeHtml(player.team?.name || '')} • Fines: £${fines}
                     </small>
                 </span>
                 <span class="font-bold text-sm">🟨 ${yellow} 🟥 ${red}</span>
@@ -414,9 +372,6 @@ async function loadDiscipline() {
     });
 }
 
-// ===============================
-// 8. TAB CONTROLLER
-// ===============================
 function showTab(tab) {
     const nextCont = document.getElementById('next-fixture-container');
     const allCont = document.getElementById('all-fixtures-container');
@@ -429,38 +384,36 @@ function showTab(tab) {
         nextCont.classList.remove('hidden');
         allCont.classList.add('hidden');
 
-        btnNext.className =
-            'px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
-
-        btnAll.className =
-            'px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
+        btnNext.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
+        btnAll.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
     } else {
         allCont.classList.remove('hidden');
         nextCont.classList.add('hidden');
 
-        btnAll.className =
-            'px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
-
-        btnNext.className =
-            'px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
+        btnAll.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
+        btnNext.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
     }
 }
 
-// ===============================
-// 9. INIT
-// ===============================
+async function reloadPageContent() {
+    await Promise.all([
+        loadFixtures(),
+        loadLeagueTable(),
+        loadTeams(),
+        loadTopScorers(),
+        loadDiscipline()
+    ]);
+    showTab('next');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        await Promise.all([
-            loadFixtures(),
-            loadLeagueTable(),
-            loadTeams(),
-            loadTopScorers(),
-            loadDiscipline()
-        ]);
-
-        showTab('next');
+        await reloadPageContent();
     } catch (error) {
         console.error('Erro ao iniciar o site:', error);
     }
+});
+
+window.addEventListener('languageChanged', async () => {
+    await reloadPageContent();
 });
