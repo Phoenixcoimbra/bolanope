@@ -64,7 +64,11 @@ function teamLogoHtml(team, size = 'w-10 h-10') {
                 src="${escapeHtml(url)}"
                 alt="${name}"
                 class="${size} rounded-full object-cover border-2 border-gray-200 bg-white shrink-0"
+                onerror="this.style.display='none'; this.nextElementSibling && this.nextElementSibling.classList.remove('hidden');"
             />
+            <div class="${size} rounded-full border-2 border-gray-200 bg-white text-[10px] font-black uppercase text-gray-500 flex items-center justify-center shrink-0 hidden">
+                Logo
+            </div>
         `;
     }
 
@@ -154,23 +158,21 @@ async function loadFixtures() {
                     ${statusHtml}
                 </div>
 
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-3 min-w-0 flex-1">
-                            ${teamLogoHtml(fixture.home_team)}
-                            <span class="text-sm font-black uppercase truncate ${homeClass}">
-                                ${homeName}
-                            </span>
-                        </div>
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        ${teamLogoHtml(fixture.home_team, 'w-8 h-8')}
+                        <span class="text-xs sm:text-sm font-black uppercase leading-tight break-words ${homeClass}">
+                            ${homeName}
+                        </span>
+                    </div>
 
-                        <span class="text-[10px] font-black uppercase text-gray-300">VS</span>
+                    <span class="text-[10px] font-black uppercase text-gray-300 shrink-0">VS</span>
 
-                        <div class="flex items-center gap-3 min-w-0 flex-1 justify-end">
-                            <span class="text-sm font-black uppercase truncate text-right ${awayClass}">
-                                ${awayName}
-                            </span>
-                            ${teamLogoHtml(fixture.away_team)}
-                        </div>
+                    <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
+                        <span class="text-xs sm:text-sm font-black uppercase leading-tight break-words text-right ${awayClass}">
+                            ${awayName}
+                        </span>
+                        ${teamLogoHtml(fixture.away_team, 'w-8 h-8')}
                     </div>
                 </div>
             </div>
@@ -181,11 +183,11 @@ async function loadFixtures() {
 
             allCont.innerHTML += `
                 <div class="col-span-full mt-6 mb-2">
-                    <div class="flex justify-between items-center bg-gray-200 px-4 py-1 rounded shadow-sm">
+                    <div class="flex justify-between items-center bg-gray-200 px-4 py-2 rounded shadow-sm gap-3">
                         <span class="font-black text-xs uppercase text-gray-700">
                             Jornada ${escapeHtml(fixture.jornada)} — ${escapeHtml(formatDate(fixture.match_date))}
                         </span>
-                        <span class="text-[9px] font-bold text-gray-500 uppercase italic">
+                        <span class="text-[9px] font-bold text-gray-500 uppercase italic text-right">
                             ${safeT('rest_label', 'Descansa')}: ${restName}
                         </span>
                     </div>
@@ -245,16 +247,16 @@ async function loadLeagueTable() {
     teams.forEach(team => {
         tableBody.innerHTML += `
             <tr class="border-b border-gray-200 hover:bg-red-50 transition-colors">
-                <td class="p-4 text-sm uppercase font-bold">
+                <td class="p-3 sm:p-4 text-sm uppercase font-bold">
                     <a href="team.html?slug=${encodeURIComponent(team.slug)}" class="hover:text-red-600 transition-colors">
                         ${escapeHtml(team.name)}
                     </a>
                 </td>
-                <td class="p-4 text-center text-sm">${team.played ?? 0}</td>
-                <td class="p-4 text-center text-sm text-green-600 font-bold">${team.won ?? 0}</td>
-                <td class="p-4 text-center text-sm">${team.drawn ?? 0}</td>
-                <td class="p-4 text-center text-sm">${team.lost ?? 0}</td>
-                <td class="p-4 text-center font-black text-green-600 text-lg">${team.points ?? 0}</td>
+                <td class="p-3 sm:p-4 text-center text-sm">${team.played ?? 0}</td>
+                <td class="p-3 sm:p-4 text-center text-sm text-green-600 font-bold">${team.won ?? 0}</td>
+                <td class="p-3 sm:p-4 text-center text-sm">${team.drawn ?? 0}</td>
+                <td class="p-3 sm:p-4 text-center text-sm">${team.lost ?? 0}</td>
+                <td class="p-3 sm:p-4 text-center font-black text-green-600 text-lg">${team.points ?? 0}</td>
             </tr>
         `;
     });
@@ -305,7 +307,7 @@ async function loadTeams() {
                 </div>
 
                 <p class="text-xs uppercase font-black text-gray-500 mb-2 text-center">${safeT('team_label', 'Equipa')}</p>
-                <h4 class="text-lg font-black italic uppercase mb-4 text-center">${escapeHtml(team.name)}</h4>
+                <h4 class="text-lg font-black italic uppercase mb-4 text-center break-words">${escapeHtml(team.name)}</h4>
 
                 <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase">
                     <div class="bg-gray-100 rounded p-2 text-center">
@@ -444,14 +446,14 @@ function showTab(tab) {
         nextCont.classList.remove('hidden');
         allCont.classList.add('hidden');
 
-        btnNext.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
-        btnAll.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
+        btnNext.className = 'px-5 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
+        btnAll.className = 'px-5 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
     } else {
         allCont.classList.remove('hidden');
         nextCont.classList.add('hidden');
 
-        btnAll.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
-        btnNext.className = 'px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
+        btnAll.className = 'px-5 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all';
+        btnNext.className = 'px-5 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all';
     }
 }
 

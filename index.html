@@ -27,14 +27,14 @@
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-<nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
-    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-        <h1 class="text-2xl font-black tracking-tighter italic">
+<nav class="bg-black text-white p-4 sm:p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
+    <div class="container mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+        <h1 class="text-xl sm:text-2xl font-black tracking-tighter italic text-center">
             LOW HALL <span class="text-red-500 underline decoration-yellow-400 decoration-4 underline-offset-4">LEAGUE</span>
         </h1>
 
         <div class="flex flex-col md:flex-row items-center gap-4">
-            <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm uppercase font-black tracking-wider">
+            <ul class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs sm:text-sm uppercase font-black tracking-wider text-center">
                 <li><a href="#fixtures" onclick="showTab('next')" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_next">Próximo</a></li>
                 <li><a href="#fixtures" onclick="showTab('all')" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_calendar">Calendário</a></li>
                 <li><a href="#table" class="py-2 hover:text-green-400 transition-colors" data-i18n="nav_table">Tabela</a></li>
@@ -52,29 +52,39 @@
     </div>
 </nav>
 
-<header class="red-panel text-white py-16 px-4 text-center border-b-8 border-black">
-    <h2 class="text-4xl md:text-6xl font-black mb-2 italic uppercase tracking-tighter yellow-glow" data-i18n="hero_title">
+<header class="red-panel text-white py-10 sm:py-16 px-4 text-center border-b-8 border-black">
+    <h2 class="text-3xl sm:text-4xl md:text-6xl font-black mb-2 italic uppercase tracking-tighter yellow-glow" data-i18n="hero_title">
         Community Football Tournament 2026
     </h2>
-    <p class="text-yellow-300 italic font-bold tracking-widest uppercase text-sm" data-i18n="hero_subtitle">
+    <p class="text-yellow-300 italic font-bold tracking-widest uppercase text-xs sm:text-sm" data-i18n="hero_subtitle">
         Low Hall Sports Ground • London E17
     </p>
 </header>
 
-<main class="container mx-auto px-4 py-8 space-y-16">
+<main class="container mx-auto px-4 py-6 sm:py-8 space-y-10 sm:space-y-16">
 
     <section id="fixtures">
         <div class="flex items-center mb-8">
             <div class="h-10 w-2 bg-yellow-400 mr-4"></div>
-            <h3 class="text-3xl font-black italic uppercase" data-i18n="fixtures_title">Calendário</h3>
+            <h3 class="text-2xl sm:text-3xl font-black italic uppercase" data-i18n="fixtures_title">Calendário</h3>
         </div>
 
-        <div class="flex space-x-2 mb-6">
-            <button id="btn-next" onclick="showTab('next')" class="px-6 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all" data-i18n="next_round">
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button
+                id="btn-next"
+                onclick="showTab('next')"
+                class="px-5 py-2 rounded font-black text-xs uppercase bg-red-600 text-white border-b-4 border-red-800 active:border-b-0 transition-all"
+                data-i18n="next_round"
+            >
                 Próxima Jornada
             </button>
 
-            <button id="btn-all" onclick="showTab('all')" class="px-6 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all" data-i18n="view_all">
+            <button
+                id="btn-all"
+                onclick="showTab('all')"
+                class="px-5 py-2 rounded font-black text-xs uppercase bg-gray-300 text-gray-700 border-b-4 border-gray-400 active:border-b-0 transition-all"
+                data-i18n="view_all"
+            >
                 Ver Todos
             </button>
         </div>
@@ -89,20 +99,20 @@
     </section>
 
     <section id="table">
-        <h3 class="text-3xl font-black mb-8 border-l-8 border-red-600 pl-4 italic uppercase" data-i18n="table_title">
+        <h3 class="text-2xl sm:text-3xl font-black mb-8 border-l-8 border-red-600 pl-4 italic uppercase" data-i18n="table_title">
             Classificação
         </h3>
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-xl border-2 border-red-600">
-            <table class="w-full text-left">
+            <table class="w-full text-left min-w-[560px]">
                 <thead class="bg-red-600 text-white text-xs uppercase font-black">
                     <tr>
-                        <th class="p-4" data-i18n="team_col">Equipa</th>
-                        <th class="p-4 text-center">J</th>
-                        <th class="p-4 text-center">V</th>
-                        <th class="p-4 text-center">E</th>
-                        <th class="p-4 text-center">D</th>
-                        <th class="p-4 text-center text-yellow-300">PTS</th>
+                        <th class="p-3 sm:p-4" data-i18n="team_col">Equipa</th>
+                        <th class="p-3 sm:p-4 text-center">J</th>
+                        <th class="p-3 sm:p-4 text-center">V</th>
+                        <th class="p-3 sm:p-4 text-center">E</th>
+                        <th class="p-3 sm:p-4 text-center">D</th>
+                        <th class="p-3 sm:p-4 text-center text-yellow-300">PTS</th>
                     </tr>
                 </thead>
                 <tbody id="league-table-body" class="font-bold">
@@ -115,18 +125,18 @@
     </section>
 
     <section id="teams">
-        <h3 class="text-3xl font-black mb-8 border-l-8 border-yellow-400 pl-4 italic uppercase" data-i18n="teams_title">
+        <h3 class="text-2xl sm:text-3xl font-black mb-8 border-l-8 border-yellow-400 pl-4 italic uppercase" data-i18n="teams_title">
             Equipas
         </h3>
 
-        <div id="teams-container" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <div id="teams-container" class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <p class="text-sm text-gray-500" data-i18n="loading_teams">A carregar equipas...</p>
         </div>
     </section>
 
-    <section id="stats" class="grid lg:grid-cols-2 gap-12">
+    <section id="stats" class="grid lg:grid-cols-2 gap-8 sm:gap-12">
         <div>
-            <h3 class="text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-green-500" data-i18n="top_scorers">
+            <h3 class="text-xl sm:text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-green-500" data-i18n="top_scorers">
                 🏆 TOP SCORERS
             </h3>
             <div class="bg-white rounded border-2 border-black overflow-hidden" id="top-scorers-list">
@@ -135,7 +145,7 @@
         </div>
 
         <div>
-            <h3 class="text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-yellow-400" data-i18n="discipline">
+            <h3 class="text-xl sm:text-2xl font-black mb-6 italic bg-black text-white p-3 border-l-8 border-yellow-400" data-i18n="discipline">
                 🟨 DISCIPLINE
             </h3>
             <div class="bg-white rounded border-2 border-black overflow-hidden" id="discipline-list">
@@ -153,24 +163,22 @@
     <div class="w-16 h-1 bg-red-600 mx-auto mb-4"></div>
 
     <a
-    href="https://instagram.com/communityfootballtournament"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="inline-flex items-center gap-2 text-sm font-black uppercase text-yellow-400 hover:text-white transition-colors mb-3"
->
-    <!-- Instagram Icon -->
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="w-5 h-5"
-        fill="currentColor"
-        viewBox="0 0 24 24"
+        href="https://instagram.com/communityfootballtournament"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 text-sm font-black uppercase text-yellow-400 hover:text-white transition-colors mb-3"
     >
-        <path d="M7.75 2h8.5C19.99 2 22 4.01 22 7.75v8.5C22 19.99 19.99 22 16.25 22h-8.5C4.01 22 2 19.99 2 16.25v-8.5C2 4.01 4.01 2 7.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5A3.75 3.75 0 0020 16.25v-8.5A3.75 3.75 0 0016.25 4h-8.5zm4.25 3.5a5.25 5.25 0 110 10.5 5.25 5.25 0 010-10.5zm0 2a3.25 3.25 0 100 6.5 3.25 3.25 0 000-6.5zm5.25-.88a1.13 1.13 0 110 2.26 1.13 1.13 0 010-2.26z"/>
-    </svg>
-
-    <!-- Handle -->
-    <span>@communityfootballtournament</span>
-</a>
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+        >
+            <path d="M7.75 2h8.5C19.99 2 22 4.01 22 7.75v8.5C22 19.99 19.99 22 16.25 22h-8.5C4.01 22 2 19.99 2 16.25v-8.5C2 4.01 4.01 2 7.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5A3.75 3.75 0 0020 16.25v-8.5A3.75 3.75 0 0016.25 4h-8.5zm4.25 3.5a5.25 5.25 0 110 10.5 5.25 5.25 0 010-10.5zm0 2a3.25 3.25 0 100 6.5 3.25 3.25 0 000-6.5zm5.25-.88a1.13 1.13 0 110 2.26 1.13 1.13 0 010-2.26z"/>
+        </svg>
+        <span>@communityfootballtournament</span>
+    </a>
 
     <p class="text-gray-500 text-xs tracking-widest uppercase" data-i18n="footer_text">
         E17 Football Excellence • © 2026
