@@ -33,6 +33,7 @@
             <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm uppercase font-black tracking-wider">
                 <li><a href="index.html" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_home">Home</a></li>
                 <li><a href="#profile" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_profile">Perfil</a></li>
+                <li><a href="#manager-section" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_manager">Manager</a></li>
                 <li><a href="#roster" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_roster">Plantel</a></li>
                 <li><a href="#stats" class="py-2 hover:text-green-400 transition-colors" data-i18n="nav_stats">Stats</a></li>
                 <li><a href="#fixtures" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_matches">Jogos</a></li>
@@ -99,31 +100,50 @@
         </div>
     </section>
 
-    <section id="roster">
+    <section id="manager-section">
         <div class="flex items-center mb-8">
-            <div class="h-10 w-2 bg-red-600 mr-4"></div>
-            <h2 class="text-3xl font-black italic uppercase" data-i18n="team_roster_title">Plantel</h2>
+            <div class="h-10 w-2 bg-yellow-400 mr-4"></div>
+            <h2 class="text-3xl font-black italic uppercase" data-i18n="manager_title">Manager</h2>
         </div>
 
-        <div class="overflow-x-auto bg-white rounded-lg shadow-xl border-2 border-red-600">
-            <table class="w-full text-left">
-                <thead class="bg-red-600 text-white text-xs uppercase font-black">
-                    <tr>
-                        <th class="p-4" data-i18n="player_col">Jogador</th>
-                        <th class="p-4 text-center" data-i18n="number_col">Nº</th>
-                        <th class="p-4 text-center" data-i18n="position_col">Posição</th>
-                        <th class="p-4 text-center" data-i18n="games_col">Jogos</th>
-                        <th class="p-4 text-center" data-i18n="goals_col">Golos</th>
-                        <th class="p-4 text-center">🟨</th>
-                        <th class="p-4 text-center">🟥</th>
-                    </tr>
-                </thead>
-                <tbody id="roster-table-body" class="font-bold">
-                    <tr>
-                        <td colspan="7" class="p-4 text-sm text-gray-500" data-i18n="roster_loading">A carregar plantel...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="bg-white rounded-2xl shadow-xl border-l-8 border-yellow-400 p-8">
+            <p class="text-xs uppercase font-black text-gray-500 mb-2" data-i18n="head_coach_label">Treinador</p>
+            <p id="team-manager" class="text-2xl font-black italic">—</p>
+        </div>
+    </section>
+
+    <section id="roster">
+        <div class="flex items-center justify-between gap-4 mb-8 flex-wrap">
+            <div class="flex items-center">
+                <div class="h-10 w-2 bg-red-600 mr-4"></div>
+                <h2 class="text-3xl font-black italic uppercase" data-i18n="team_roster_title">Plantel</h2>
+            </div>
+
+            <div id="squad-view-toggle" class="flex items-center gap-2">
+                <span class="text-xs uppercase font-black text-gray-500" data-i18n="squad_view_label">Ver</span>
+
+                <button
+                    id="view-cards-btn"
+                    type="button"
+                    data-view="cards"
+                    class="px-4 py-2 rounded-lg font-black text-xs uppercase bg-red-600 text-white"
+                >
+                    <span data-i18n="squad_view_cards">Cards</span>
+                </button>
+
+                <button
+                    id="view-list-btn"
+                    type="button"
+                    data-view="list"
+                    class="px-4 py-2 rounded-lg font-black text-xs uppercase bg-gray-200 text-gray-700"
+                >
+                    <span data-i18n="squad_view_list">Lista</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="grouped-roster" class="space-y-10">
+            <p class="text-sm text-gray-500" data-i18n="roster_loading">A carregar plantel...</p>
         </div>
     </section>
 
@@ -163,6 +183,17 @@
 <footer class="bg-black text-white py-12 text-center border-t-8 border-red-600">
     <p class="font-black italic text-2xl mb-2">LOW HALL <span class="text-yellow-400">LEAGUE</span></p>
     <div class="w-16 h-1 bg-red-600 mx-auto mb-4"></div>
+
+    <a
+        id="team-instagram-link"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-block text-sm font-black uppercase text-yellow-400 hover:text-white transition-colors mb-3 hidden"
+    >
+        Instagram
+    </a>
+
     <p class="text-gray-500 text-xs tracking-widest uppercase" data-i18n="footer_text">E17 Football Excellence • © 2026</p>
 </footer>
 

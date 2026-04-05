@@ -6,6 +6,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentTeam = null;
 let currentPlayers = [];
 let currentFixtures = [];
+let squadView = localStorage.getItem('squadView') || 'cards';
 
 function getSlugFromUrl() {
     const params = new URLSearchParams(window.location.search);
@@ -23,10 +24,10 @@ function escapeHtml(value) {
 }
 
 function formatDate(dateString) {
-    if (!dateString) return t('date_tbd');
+    if (!dateString) return typeof t === 'function' ? t('date_tbd') : 'Data por definir';
 
     const date = new Date(dateString);
-    const lang = getCurrentLang() === 'en' ? 'en-GB' : 'pt-PT';
+    const lang = typeof getCurrentLang === 'function' && getCurrentLang() === 'en' ? 'en-GB' : 'pt-PT';
 
     return date.toLocaleDateString(lang, {
         day: '2-digit',
@@ -39,10 +40,17 @@ function isPlayedMatch(fixture) {
     return fixture.home_score !== null && fixture.away_score !== null;
 }
 
+function safeT(key, fallback) {
+    try {
+        if (typeof t === 'function') return t(key);
+    } catch (e) {}
+    return fallback;
+}
+
 function renderTeamNotFound(message) {
-    document.getElementById('team-name').textContent = t('no_team_found');
+    document.getElementById('team-name').textContent = safeT('no_team_found', 'Equipa não encontrada');
     document.getElementById('team-description').textContent = message;
-    document.getElementById('team-tagline').textContent = t('verify_team_link');
+    document.getElementById('team-tagline').textContent = safeT('verify_team_link', 'Verifica o link da equipa.');
 }
 
 function loadTeamLogo(logoUrl, teamName) {
@@ -60,11 +68,162 @@ function loadTeamLogo(logoUrl, teamName) {
     }
 }
 
+function loadInstagramLink(instagramHandleOrUrl) {
+    const link = document.getElementById('team-instagram-link');
+    if (!link) return;
+
+    if (!instagramHandleOrUrl || String(instagramHandleOrUrl).trim() === '') {
+        link.classList.add('hidden');
+        link.removeAttribute('href');
+        return;
+    }
+
+    const raw = String(instagramHandleOrUrl).trim();
+    const isFullUrl = raw.startsWith('http://') || raw.startsWith('https://');
+    const cleanHandle = raw.replace(/^@/, '');
+    const finalUrl = isFullUrl ? raw : `https://instagram.com/${cleanHandle}`;
+
+    link.href = finalUrl;
+    link.textContent = isFullUrl ? 'Instagram' : `@${cleanHandle}`;
+    link.classList.remove('hidden');
+}
+
+function getTeamDescription(team) {
+    if (!team) return safeT('no_team_description', 'Sem descrição disponível para esta equipa.');
+
+    const lang = typeof getCurrentLang === 'function' ? getCurrentLang() : 'pt';
+
+    if (lang === 'en' && team.description_en) return team.description_en;
+    if (lang === 'pt' && team.description_pt) return team.description_pt;
+
+    return team.description || safeT('no_team_description', 'Sem descrição disponível para esta equipa.');
+}
+
+function renderTeamHeader() {
+    if (!currentTeam) return;
+
+    document.title = `${currentTeam.name} | Low Hall League`;
+    document.getElementById('team-name').textContent = currentTeam.name;
+    document.getElementById('team-description').textContent = getTeamDescription(currentTeam);
+    document.getElementById('team-tagline').textContent = safeT('team_tagline', 'Low Hall League 2026');
+    document.getElementById('team-manager').textContent = currentTeam.manager || '—';
+
+    loadTeamLogo(currentTeam.logo_url, currentTeam.name);
+    loadInstagramLink(currentTeam.instagram || currentTeam.instagram_url || currentTeam.instagram_handle);
+}
+
+function mapPositionGroup(position) {
+    const pos = String(position || '').trim().toUpperCase();
+
+    if (['GK'].includes(pos)) return 'goalkeeper';
+    if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(pos)) return 'defence';
+    if (['DM', 'CM', 'MCO', 'CAM', 'LM', 'RM'].includes(pos)) return 'midfield';
+    if (['LW', 'RW', 'ST', 'CF'].includes(pos)) return 'attack';
+
+    return 'unassigned';
+}
+
+function getGroupLabel(group) {
+    const lang = typeof getCurrentLang === 'function' ? getCurrentLang() : 'pt';
+
+    const labels = {
+        pt: {
+            goalkeeper: 'Guarda-Redes',
+            defence: 'Defesa',
+            midfield: 'Meio-Campo',
+            attack: 'Ataque',
+            unassigned: 'Sem Posição Definida'
+        },
+        en: {
+            goalkeeper: 'Goalkeepers',
+            defence: 'Defence',
+            midfield: 'Midfield',
+            attack: 'Attack',
+            unassigned: 'Unassigned'
+        }
+    };
+
+    return labels[lang]?.[group] || labels.pt[group] || group;
+}
+
+function getPositionLabel(position) {
+    const pos = String(position || '').trim().toUpperCase();
+    const lang = typeof getCurrentLang === 'function' ? getCurrentLang() : 'pt';
+
+    const map = {
+        pt: {
+            GK: 'GR',
+            LB: 'DE',
+            CB: 'DC',
+            RB: 'DD',
+            DM: 'MD',
+            MCO: 'MCO',
+            LW: 'EE',
+            RW: 'ED',
+            ST: 'PL',
+            CF: 'AV'
+        },
+        en: {
+            GK: 'GK',
+            LB: 'LB',
+            CB: 'CB',
+            RB: 'RB',
+            DM: 'DM',
+            MCO: 'CAM',
+            LW: 'LW',
+            RW: 'RW',
+            ST: 'ST',
+            CF: 'CF'
+        }
+    };
+
+    return map[lang]?.[pos] || pos || '—';
+}
+
+function updateSquadViewButtons() {
+    const cardsBtn = document.getElementById('view-cards-btn');
+    const listBtn = document.getElementById('view-list-btn');
+
+    if (!cardsBtn || !listBtn) return;
+
+    if (squadView === 'cards') {
+        cardsBtn.className = 'px-4 py-2 rounded-lg font-black text-xs uppercase bg-red-600 text-white';
+        listBtn.className = 'px-4 py-2 rounded-lg font-black text-xs uppercase bg-gray-200 text-gray-700';
+    } else {
+        listBtn.className = 'px-4 py-2 rounded-lg font-black text-xs uppercase bg-red-600 text-white';
+        cardsBtn.className = 'px-4 py-2 rounded-lg font-black text-xs uppercase bg-gray-200 text-gray-700';
+    }
+}
+
+function setSquadView(view) {
+    if (view !== 'cards' && view !== 'list') return;
+
+    squadView = view;
+    localStorage.setItem('squadView', view);
+    updateSquadViewButtons();
+    renderGroupedRoster();
+}
+
+function setupSquadViewToggle() {
+    const toggle = document.getElementById('squad-view-toggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-view]');
+        if (!button) return;
+
+        const view = button.dataset.view;
+        setSquadView(view);
+    });
+
+    updateSquadViewButtons();
+}
+
 async function loadTeamPage() {
     const slug = getSlugFromUrl();
 
     if (!slug) {
-        renderTeamNotFound(t('missing_team_slug'));
+        renderTeamNotFound(safeT('missing_team_slug', 'Esta página foi aberta sem o identificador da equipa.'));
         return;
     }
 
@@ -76,17 +235,16 @@ async function loadTeamPage() {
 
     if (teamError) {
         console.error('Erro ao carregar equipa:', teamError);
-        renderTeamNotFound(t('team_not_loaded'));
+        renderTeamNotFound(safeT('team_not_loaded', 'Não foi possível carregar esta equipa.'));
         return;
     }
 
     if (!team) {
-        renderTeamNotFound(t('no_team_found'));
+        renderTeamNotFound(safeT('no_team_found', 'Equipa não encontrada'));
         return;
     }
 
     currentTeam = team;
-    document.title = `${team.name} | Low Hall League`;
     renderTeamHeader();
 
     await Promise.all([
@@ -95,21 +253,9 @@ async function loadTeamPage() {
     ]);
 }
 
-function renderTeamHeader() {
-    if (!currentTeam) return;
-
-    document.getElementById('team-name').textContent = currentTeam.name;
-    document.getElementById('team-description').textContent =
-        currentTeam.description || t('no_team_description');
-    document.getElementById('team-tagline').textContent = t('team_tagline');
-
-    loadTeamLogo(currentTeam.logo_url, currentTeam.name);
-}
-
 async function loadPlayers(teamId) {
-    const tableBody = document.getElementById('roster-table-body');
-
-    tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-sm text-gray-500">${t('roster_loading')}</td></tr>`;
+    const roster = document.getElementById('grouped-roster');
+    roster.innerHTML = `<p class="text-sm text-gray-500">${safeT('roster_loading', 'A carregar plantel...')}</p>`;
 
     const { data: players, error } = await supabaseClient
         .from('players')
@@ -129,25 +275,26 @@ async function loadPlayers(teamId) {
 
     if (error) {
         console.error('Erro ao carregar jogadores:', error);
-        tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-red-600 font-bold">${t('no_players_registered')}</td></tr>`;
+        roster.innerHTML = `<p class="text-sm text-red-600 font-bold">${safeT('no_players_registered', 'Ainda não existem jogadores registados para esta equipa.')}</p>`;
         return;
     }
 
     currentPlayers = players || [];
-    renderPlayers();
+    renderGroupedRoster();
+    renderPlayerHighlights(currentPlayers);
 }
 
-function renderPlayers() {
-    const tableBody = document.getElementById('roster-table-body');
-    tableBody.innerHTML = '';
+function renderGroupedRoster() {
+    const roster = document.getElementById('grouped-roster');
+    roster.innerHTML = '';
 
     if (!currentPlayers.length) {
-        tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-gray-500">${t('no_players_registered')}</td></tr>`;
+        roster.innerHTML = `<p class="text-sm text-gray-500">${safeT('no_players_registered', 'Ainda não existem jogadores registados para esta equipa.')}</p>`;
+
         document.getElementById('summary-players').textContent = '0';
         document.getElementById('summary-goals').textContent = '0';
         document.getElementById('summary-yellow').textContent = '0';
         document.getElementById('summary-red').textContent = '0';
-        renderPlayerHighlights([]);
         return;
     }
 
@@ -156,26 +303,9 @@ function renderPlayers() {
     let totalRed = 0;
 
     currentPlayers.forEach(player => {
-        const goals = player.goals ?? 0;
-        const yellow = player.yellow_cards ?? 0;
-        const red = player.red_cards ?? 0;
-        const gamesPlayed = player.games_played ?? 0;
-
-        totalGoals += goals;
-        totalYellow += yellow;
-        totalRed += red;
-
-        tableBody.innerHTML += `
-            <tr class="border-b border-gray-200 hover:bg-red-50 transition-colors">
-                <td class="p-4 text-sm font-bold uppercase">${escapeHtml(player.name)}</td>
-                <td class="p-4 text-center text-sm">${player.number ?? '-'}</td>
-                <td class="p-4 text-center text-sm">${escapeHtml(player.position || '-')}</td>
-                <td class="p-4 text-center text-sm">${gamesPlayed}</td>
-                <td class="p-4 text-center text-sm font-black text-green-600">${goals}</td>
-                <td class="p-4 text-center text-sm">${yellow}</td>
-                <td class="p-4 text-center text-sm">${red}</td>
-            </tr>
-        `;
+        totalGoals += player.goals ?? 0;
+        totalYellow += player.yellow_cards ?? 0;
+        totalRed += player.red_cards ?? 0;
     });
 
     document.getElementById('summary-players').textContent = currentPlayers.length;
@@ -183,7 +313,113 @@ function renderPlayers() {
     document.getElementById('summary-yellow').textContent = totalYellow;
     document.getElementById('summary-red').textContent = totalRed;
 
-    renderPlayerHighlights(currentPlayers);
+    const grouped = {
+        goalkeeper: [],
+        defence: [],
+        midfield: [],
+        attack: [],
+        unassigned: []
+    };
+
+    currentPlayers.forEach(player => {
+        grouped[mapPositionGroup(player.position)].push(player);
+    });
+
+    const order = ['goalkeeper', 'defence', 'midfield', 'attack', 'unassigned'];
+
+    order.forEach(group => {
+        if (!grouped[group].length) return;
+
+        roster.innerHTML += `
+            <div class="space-y-4">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-2 bg-red-600"></div>
+                    <h3 class="text-2xl font-black italic uppercase">${getGroupLabel(group)}</h3>
+                </div>
+
+                ${
+                    squadView === 'cards'
+                        ? `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                            ${grouped[group].map(player => renderPlayerCard(player)).join('')}
+                           </div>`
+                        : `<div class="bg-white rounded-xl shadow-lg border overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-100 text-xs uppercase font-black text-gray-600">
+                                    <tr>
+                                        <th class="p-4 w-20 text-center">#</th>
+                                        <th class="p-4">${safeT('player_col', 'Jogador')}</th>
+                                        <th class="p-4 w-28 text-center">${safeT('position_col', 'Posição')}</th>
+                                        <th class="p-4 w-24 text-center">${safeT('games_col', 'Jogos')}</th>
+                                        <th class="p-4 w-24 text-center">${safeT('goals_col', 'Golos')}</th>
+                                        <th class="p-4 w-20 text-center">🟨</th>
+                                        <th class="p-4 w-20 text-center">🟥</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${grouped[group].map(player => renderPlayerRow(player)).join('')}
+                                </tbody>
+                            </table>
+                           </div>`
+                }
+            </div>
+        `;
+    });
+}
+
+function renderPlayerCard(player) {
+    const number = player.number ?? '—';
+    const position = getPositionLabel(player.position);
+    const games = player.games_played ?? 0;
+    const goals = player.goals ?? 0;
+    const yellow = player.yellow_cards ?? 0;
+    const red = player.red_cards ?? 0;
+
+    return `
+        <div class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-5">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div class="min-w-0">
+                    <p class="text-xs uppercase font-black text-gray-500 mb-1">#${number}</p>
+                    <h4 class="text-xl font-black italic uppercase break-words">${escapeHtml(player.name)}</h4>
+                </div>
+                <span class="bg-black text-white text-xs font-black px-3 py-1 rounded-full uppercase shrink-0">
+                    ${escapeHtml(position)}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 text-center text-xs font-black uppercase">
+                <div class="bg-gray-100 rounded p-3">
+                    <span class="block text-gray-500">${safeT('games_col', 'Jogos')}</span>
+                    <span class="text-black text-base">${games}</span>
+                </div>
+                <div class="bg-gray-100 rounded p-3">
+                    <span class="block text-gray-500">${safeT('goals_col', 'Golos')}</span>
+                    <span class="text-green-600 text-base">${goals}</span>
+                </div>
+                <div class="bg-gray-100 rounded p-3">
+                    <span class="block text-gray-500">🟨</span>
+                    <span class="text-black text-base">${yellow}</span>
+                </div>
+                <div class="bg-gray-100 rounded p-3">
+                    <span class="block text-gray-500">🟥</span>
+                    <span class="text-black text-base">${red}</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderPlayerRow(player) {
+    return `
+        <tr class="border-t hover:bg-red-50 transition-colors">
+            <td class="p-4 text-center font-black align-middle">${player.number ?? '—'}</td>
+            <td class="p-4 font-bold uppercase align-middle">${escapeHtml(player.name)}</td>
+            <td class="p-4 text-center font-black align-middle">${escapeHtml(getPositionLabel(player.position))}</td>
+            <td class="p-4 text-center align-middle">${player.games_played ?? 0}</td>
+            <td class="p-4 text-center font-black text-green-600 align-middle">${player.goals ?? 0}</td>
+            <td class="p-4 text-center align-middle">${player.yellow_cards ?? 0}</td>
+            <td class="p-4 text-center align-middle">${player.red_cards ?? 0}</td>
+        </tr>
+    `;
 }
 
 function renderPlayerHighlights(players) {
@@ -192,18 +428,18 @@ function renderPlayerHighlights(players) {
     const mostRed = [...players].sort((a, b) => (b.red_cards ?? 0) - (a.red_cards ?? 0))[0];
 
     document.getElementById('top-scorer-name').textContent = topScorer?.name || '—';
-    document.getElementById('top-scorer-goals').textContent = `${topScorer?.goals ?? 0} ${t('goals_label')}`;
+    document.getElementById('top-scorer-goals').textContent = `${topScorer?.goals ?? 0} ${safeT('goals_label', 'golos')}`;
 
     document.getElementById('most-yellow-name').textContent = mostYellow?.name || '—';
-    document.getElementById('most-yellow-count').textContent = `${mostYellow?.yellow_cards ?? 0} ${t('yellow_cards_label')}`;
+    document.getElementById('most-yellow-count').textContent = `${mostYellow?.yellow_cards ?? 0} ${safeT('yellow_cards_label', 'cartões amarelos')}`;
 
     document.getElementById('most-red-name').textContent = mostRed?.name || '—';
-    document.getElementById('most-red-count').textContent = `${mostRed?.red_cards ?? 0} ${t('red_cards_label')}`;
+    document.getElementById('most-red-count').textContent = `${mostRed?.red_cards ?? 0} ${safeT('red_cards_label', 'cartões vermelhos')}`;
 }
 
 async function loadFixtures(teamId, teamName) {
     const fixturesList = document.getElementById('team-fixtures-list');
-    fixturesList.innerHTML = `<p class="text-sm text-gray-500">${t('team_matches_loading')}</p>`;
+    fixturesList.innerHTML = `<p class="text-sm text-gray-500">${safeT('team_matches_loading', 'A carregar jogos...')}</p>`;
 
     const { data: fixtures, error } = await supabaseClient
         .from('fixtures')
@@ -223,7 +459,7 @@ async function loadFixtures(teamId, teamName) {
 
     if (error) {
         console.error('Erro ao carregar jogos da equipa:', error);
-        fixturesList.innerHTML = `<p class="text-red-600 font-bold">${t('no_team_matches')}</p>`;
+        fixturesList.innerHTML = `<p class="text-sm text-red-600 font-bold">${safeT('no_team_matches', 'Ainda não existem jogos para esta equipa.')}</p>`;
         return;
     }
 
@@ -236,7 +472,7 @@ function renderFixtures(teamName) {
     fixturesList.innerHTML = '';
 
     if (!currentFixtures.length) {
-        fixturesList.innerHTML = `<p class="text-gray-500">${t('no_team_matches')}</p>`;
+        fixturesList.innerHTML = `<p class="text-sm text-gray-500">${safeT('no_team_matches', 'Ainda não existem jogos para esta equipa.')}</p>`;
         return;
     }
 
@@ -247,7 +483,7 @@ function renderFixtures(teamName) {
         const isHomeTeam = homeName === teamName;
         const isAwayTeam = awayName === teamName;
 
-        let resultLabel = t('not_played');
+        let resultLabel = safeT('not_played', 'Por jogar');
         let resultClass = 'bg-gray-100 text-gray-600';
 
         if (isPlayedMatch(fixture)) {
@@ -255,13 +491,13 @@ function renderFixtures(teamName) {
             const awayScore = fixture.away_score;
 
             if ((isHomeTeam && homeScore > awayScore) || (isAwayTeam && awayScore > homeScore)) {
-                resultLabel = t('win');
+                resultLabel = safeT('win', 'Vitória');
                 resultClass = 'bg-green-100 text-green-700';
             } else if (homeScore === awayScore) {
-                resultLabel = t('draw');
+                resultLabel = safeT('draw', 'Empate');
                 resultClass = 'bg-yellow-100 text-yellow-700';
             } else {
-                resultLabel = t('loss');
+                resultLabel = safeT('loss', 'Derrota');
                 resultClass = 'bg-red-100 text-red-700';
             }
         }
@@ -291,13 +527,14 @@ function renderFixtures(teamName) {
 }
 
 function rerenderLanguageSensitiveContent() {
-    applyTranslations();
-
-    if (currentTeam) {
-        renderTeamHeader();
+    if (typeof applyTranslations === 'function') {
+        applyTranslations();
     }
 
-    renderPlayers();
+    updateSquadViewButtons();
+    renderTeamHeader();
+    renderGroupedRoster();
+    renderPlayerHighlights(currentPlayers);
 
     if (currentTeam) {
         renderFixtures(currentTeam.name);
@@ -305,6 +542,7 @@ function rerenderLanguageSensitiveContent() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    setupSquadViewToggle();
     await loadTeamPage();
 });
 

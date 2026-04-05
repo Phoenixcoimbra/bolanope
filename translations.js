@@ -42,6 +42,12 @@ const translations = {
         footer_text: "E17 Football Excellence • © 2026",
 
         // TEAM PAGE
+        nav_manager: "Manager",
+manager_title: "Manager",
+head_coach_label: "Treinador",
+squad_view_label: "Ver",
+squad_view_cards: "Cards",
+squad_view_list: "Lista",
         team_profile_label: "Team Profile",
         team_profile_title: "Perfil da Equipa",
         team_roster_title: "Plantel",
@@ -151,6 +157,12 @@ const translations = {
         footer_text: "E17 Football Excellence • © 2026",
 
         // TEAM PAGE
+        nav_manager: "Manager",
+manager_title: "Manager",
+head_coach_label: "Head Coach",
+squad_view_label: "View",
+squad_view_cards: "Cards",
+squad_view_list: "List",
         team_profile_label: "Team Profile",
         team_profile_title: "Team Profile",
         team_roster_title: "Squad",
