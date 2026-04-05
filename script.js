@@ -3,11 +3,25 @@ const SUPABASE_ANON_KEY = 'sb_publishable_LhCp8yCM9qUNeVKGkmF_nw_Hnw9DFst';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function safeT(key, fallback = '') {
+    try {
+        if (typeof t === 'function') return t(key);
+    } catch (e) {}
+    return fallback || key;
+}
+
+function safeLang() {
+    try {
+        if (typeof getCurrentLang === 'function') return getCurrentLang();
+    } catch (e) {}
+    return 'pt';
+}
+
 function formatDate(dateString) {
-    if (!dateString) return t('date_tbd');
+    if (!dateString) return safeT('date_tbd', 'Data por definir');
 
     const date = new Date(dateString);
-    const lang = getCurrentLang() === 'en' ? 'en-GB' : 'pt-PT';
+    const lang = safeLang() === 'en' ? 'en-GB' : 'pt-PT';
 
     return date.toLocaleDateString(lang, {
         day: '2-digit',
@@ -40,14 +54,35 @@ function escapeHtml(value) {
         .replaceAll("'", '&#039;');
 }
 
+function teamLogoHtml(team, size = 'w-10 h-10') {
+    const url = team?.logo_url;
+    const name = escapeHtml(team?.name || 'Team');
+
+    if (url && String(url).trim() !== '') {
+        return `
+            <img
+                src="${escapeHtml(url)}"
+                alt="${name}"
+                class="${size} rounded-full object-cover border-2 border-gray-200 bg-white shrink-0"
+            />
+        `;
+    }
+
+    return `
+        <div class="${size} rounded-full border-2 border-gray-200 bg-white text-[10px] font-black uppercase text-gray-500 flex items-center justify-center shrink-0">
+            Logo
+        </div>
+    `;
+}
+
 async function loadFixtures() {
     const nextCont = document.getElementById('next-fixture-container');
     const allCont = document.getElementById('all-fixtures-container');
 
     if (!nextCont || !allCont) return;
 
-    nextCont.innerHTML = `<p class="text-sm text-gray-500">${t('loading_games')}</p>`;
-    allCont.innerHTML = `<p class="text-sm text-gray-500">${t('loading_calendar')}</p>`;
+    nextCont.innerHTML = `<p class="text-sm text-gray-500">${safeT('loading_games', 'A carregar jogos...')}</p>`;
+    allCont.innerHTML = `<p class="text-sm text-gray-500">${safeT('loading_calendar', 'A carregar calendário...')}</p>`;
 
     const { data: fixtures, error } = await supabaseClient
         .from('fixtures')
@@ -58,8 +93,8 @@ async function loadFixtures() {
             home_score,
             away_score,
             status,
-            home_team:home_team_id ( id, name ),
-            away_team:away_team_id ( id, name ),
+            home_team:home_team_id ( id, name, logo_url ),
+            away_team:away_team_id ( id, name, logo_url ),
             rest_team:rest_team_id ( id, name )
         `)
         .order('jornada', { ascending: true })
@@ -67,8 +102,8 @@ async function loadFixtures() {
 
     if (error) {
         console.error('Erro ao carregar jogos:', error);
-        nextCont.innerHTML = `<p class="text-red-600 font-bold">${t('no_games')}</p>`;
-        allCont.innerHTML = `<p class="text-red-600 font-bold">${t('no_calendar')}</p>`;
+        nextCont.innerHTML = `<p class="text-red-600 font-bold">Erro ao carregar jogos.</p>`;
+        allCont.innerHTML = `<p class="text-red-600 font-bold">Erro ao carregar calendário.</p>`;
         return;
     }
 
@@ -76,8 +111,8 @@ async function loadFixtures() {
     allCont.innerHTML = '';
 
     if (!fixtures || fixtures.length === 0) {
-        nextCont.innerHTML = `<p class="text-gray-500">${t('no_games')}</p>`;
-        allCont.innerHTML = `<p class="text-gray-500">${t('no_calendar')}</p>`;
+        nextCont.innerHTML = `<p class="text-gray-500">${safeT('no_games', 'Sem jogos disponíveis.')}</p>`;
+        allCont.innerHTML = `<p class="text-gray-500">${safeT('no_calendar', 'Sem calendário disponível.')}</p>`;
         return;
     }
 
@@ -94,8 +129,8 @@ async function loadFixtures() {
     let currentJornada = null;
 
     fixtures.forEach(fixture => {
-        const homeName = escapeHtml(fixture.home_team?.name || 'Home');
-        const awayName = escapeHtml(fixture.away_team?.name || 'Away');
+        const homeName = escapeHtml(fixture.home_team?.name || 'Equipa Casa');
+        const awayName = escapeHtml(fixture.away_team?.name || 'Equipa Fora');
         const restName = escapeHtml(fixture.rest_team?.name || '—');
 
         let homeClass = '';
@@ -111,13 +146,33 @@ async function loadFixtures() {
             : `<span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[10px] font-bold uppercase">${escapeHtml(formatDate(fixture.match_date))}</span>`;
 
         const cardHtml = `
-            <div class="bg-white p-4 rounded shadow-sm border flex justify-between items-center border-l-4 border-l-green-500">
-                <div class="text-sm font-bold flex-1">
-                    <span class="${homeClass}">${homeName}</span>
-                    <span class="text-gray-300 mx-1 text-[10px]">VS</span>
-                    <span class="${awayClass}">${awayName}</span>
+            <div class="bg-white p-4 rounded shadow-sm border border-gray-200 border-l-4 border-l-green-500">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-black uppercase text-gray-500">
+                        Jornada ${escapeHtml(fixture.jornada)}
+                    </span>
+                    ${statusHtml}
                 </div>
-                <div class="ml-4">${statusHtml}</div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            ${teamLogoHtml(fixture.home_team)}
+                            <span class="text-sm font-black uppercase truncate ${homeClass}">
+                                ${homeName}
+                            </span>
+                        </div>
+
+                        <span class="text-[10px] font-black uppercase text-gray-300">VS</span>
+
+                        <div class="flex items-center gap-3 min-w-0 flex-1 justify-end">
+                            <span class="text-sm font-black uppercase truncate text-right ${awayClass}">
+                                ${awayName}
+                            </span>
+                            ${teamLogoHtml(fixture.away_team)}
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
 
@@ -131,7 +186,7 @@ async function loadFixtures() {
                             Jornada ${escapeHtml(fixture.jornada)} — ${escapeHtml(formatDate(fixture.match_date))}
                         </span>
                         <span class="text-[9px] font-bold text-gray-500 uppercase italic">
-                            ${t('rest_label')}: ${restName}
+                            ${safeT('rest_label', 'Descansa')}: ${restName}
                         </span>
                     </div>
                 </div>
@@ -146,7 +201,7 @@ async function loadFixtures() {
     });
 
     if (nextCont.innerHTML.trim() === '') {
-        nextCont.innerHTML = `<p class="text-gray-500">${t('no_next_round')}</p>`;
+        nextCont.innerHTML = `<p class="text-gray-500">${safeT('no_next_round', 'Sem próxima jornada disponível.')}</p>`;
     }
 }
 
@@ -154,7 +209,7 @@ async function loadLeagueTable() {
     const tableBody = document.getElementById('league-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-sm text-gray-500">${t('loading_table')}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-sm text-gray-500">${safeT('loading_table', 'A carregar classificação...')}</td></tr>`;
 
     const { data: teams, error } = await supabaseClient
         .from('teams')
@@ -176,14 +231,14 @@ async function loadLeagueTable() {
 
     if (error) {
         console.error('Erro ao carregar classificação:', error);
-        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-red-600 font-bold">${t('loading_table')}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-red-600 font-bold">Erro ao carregar classificação.</td></tr>`;
         return;
     }
 
     tableBody.innerHTML = '';
 
     if (!teams || teams.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-gray-500">${t('no_teams')}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-gray-500">${safeT('no_teams', 'Sem equipas disponíveis.')}</td></tr>`;
         return;
     }
 
@@ -209,7 +264,7 @@ async function loadTeams() {
     const container = document.getElementById('teams-container');
     if (!container) return;
 
-    container.innerHTML = `<p class="text-sm text-gray-500">${t('loading_teams')}</p>`;
+    container.innerHTML = `<p class="text-sm text-gray-500">${safeT('loading_teams', 'A carregar equipas...')}</p>`;
 
     const { data: teams, error } = await supabaseClient
         .from('teams')
@@ -217,6 +272,7 @@ async function loadTeams() {
             id,
             name,
             slug,
+            logo_url,
             played,
             won,
             drawn,
@@ -227,14 +283,14 @@ async function loadTeams() {
 
     if (error) {
         console.error('Erro ao carregar equipas:', error);
-        container.innerHTML = `<p class="text-red-600 font-bold">${t('no_teams')}</p>`;
+        container.innerHTML = `<p class="text-red-600 font-bold">Erro ao carregar equipas.</p>`;
         return;
     }
 
     container.innerHTML = '';
 
     if (!teams || teams.length === 0) {
-        container.innerHTML = `<p class="text-gray-500">${t('no_teams')}</p>`;
+        container.innerHTML = `<p class="text-gray-500">${safeT('no_teams', 'Sem equipas disponíveis.')}</p>`;
         return;
     }
 
@@ -244,8 +300,12 @@ async function loadTeams() {
                 href="team.html?slug=${encodeURIComponent(team.slug)}"
                 class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-5 hover:shadow-2xl hover:-translate-y-1 transition-all block"
             >
-                <p class="text-xs uppercase font-black text-gray-500 mb-2">${t('team_label')}</p>
-                <h4 class="text-lg font-black italic uppercase mb-4">${escapeHtml(team.name)}</h4>
+                <div class="flex items-center justify-center mb-4">
+                    ${teamLogoHtml(team, 'w-16 h-16')}
+                </div>
+
+                <p class="text-xs uppercase font-black text-gray-500 mb-2 text-center">${safeT('team_label', 'Equipa')}</p>
+                <h4 class="text-lg font-black italic uppercase mb-4 text-center">${escapeHtml(team.name)}</h4>
 
                 <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase">
                     <div class="bg-gray-100 rounded p-2 text-center">
@@ -266,7 +326,7 @@ async function loadTeams() {
                     </div>
                 </div>
 
-                <p class="mt-4 text-xs font-black uppercase text-red-600">${t('view_profile')}</p>
+                <p class="mt-4 text-xs font-black uppercase text-red-600 text-center">${safeT('view_profile', 'Ver perfil →')}</p>
             </a>
         `;
     });
@@ -276,7 +336,7 @@ async function loadTopScorers() {
     const scorersList = document.getElementById('top-scorers-list');
     if (!scorersList) return;
 
-    scorersList.innerHTML = `<p class="p-4 text-sm text-gray-500">${t('loading_scorers')}</p>`;
+    scorersList.innerHTML = `<p class="p-4 text-sm text-gray-500">${safeT('loading_scorers', 'A carregar marcadores...')}</p>`;
 
     const { data: players, error } = await supabaseClient
         .from('players')
@@ -293,14 +353,14 @@ async function loadTopScorers() {
 
     if (error) {
         console.error('Erro ao carregar marcadores:', error);
-        scorersList.innerHTML = `<p class="p-4 text-red-600 font-bold">${t('no_scorers')}</p>`;
+        scorersList.innerHTML = `<p class="p-4 text-red-600 font-bold">Erro ao carregar marcadores.</p>`;
         return;
     }
 
     scorersList.innerHTML = '';
 
     if (!players || players.length === 0) {
-        scorersList.innerHTML = `<p class="p-4 text-gray-500">${t('no_scorers')}</p>`;
+        scorersList.innerHTML = `<p class="p-4 text-gray-500">${safeT('no_scorers', 'Ainda sem marcadores registados.')}</p>`;
         return;
     }
 
@@ -321,7 +381,7 @@ async function loadDiscipline() {
     const discList = document.getElementById('discipline-list');
     if (!discList) return;
 
-    discList.innerHTML = `<p class="p-4 text-sm text-gray-500">${t('loading_discipline')}</p>`;
+    discList.innerHTML = `<p class="p-4 text-sm text-gray-500">${safeT('loading_discipline', 'A carregar disciplina...')}</p>`;
 
     const { data: players, error } = await supabaseClient
         .from('players')
@@ -338,7 +398,7 @@ async function loadDiscipline() {
 
     if (error) {
         console.error('Erro ao carregar disciplina:', error);
-        discList.innerHTML = `<p class="p-4 text-red-600 font-bold">${t('no_cards')}</p>`;
+        discList.innerHTML = `<p class="p-4 text-red-600 font-bold">Erro ao carregar disciplina.</p>`;
         return;
     }
 
@@ -349,7 +409,7 @@ async function loadDiscipline() {
     discList.innerHTML = '';
 
     if (filteredPlayers.length === 0) {
-        discList.innerHTML = `<p class="p-4 text-gray-500">${t('no_cards')}</p>`;
+        discList.innerHTML = `<p class="p-4 text-gray-500">${safeT('no_cards', 'Sem cartões registados.')}</p>`;
         return;
     }
 
@@ -363,7 +423,7 @@ async function loadDiscipline() {
                 <span>
                     <span class="font-bold text-sm">${escapeHtml(player.name)}</span>
                     <small class="block text-red-500 font-bold italic text-[10px] uppercase">
-                        ${escapeHtml(player.team?.name || '')} • Fines: £${fines}
+                        ${escapeHtml(player.team?.name || '')} • Multas: £${fines}
                     </small>
                 </span>
                 <span class="font-bold text-sm">🟨 ${yellow} 🟥 ${red}</span>
