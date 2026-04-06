@@ -60,14 +60,16 @@ function teamLogoHtml(team, size = 'w-10 h-10') {
 
     if (url && String(url).trim() !== '') {
         return `
-            <img
-                src="${escapeHtml(url)}"
-                alt="${name}"
-                class="${size} rounded-full object-cover border-2 border-gray-200 bg-white shrink-0"
-                onerror="this.style.display='none'; this.nextElementSibling && this.nextElementSibling.classList.remove('hidden');"
-            />
-            <div class="${size} rounded-full border-2 border-gray-200 bg-white text-[10px] font-black uppercase text-gray-500 flex items-center justify-center shrink-0 hidden">
-                Logo
+            <div class="relative shrink-0">
+                <img
+                    src="${escapeHtml(url)}"
+                    alt="${name}"
+                    class="${size} rounded-full object-cover border-2 border-gray-200 bg-white"
+                    onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                />
+                <div class="${size} rounded-full border-2 border-gray-200 bg-white text-[10px] font-black uppercase text-gray-500 flex items-center justify-center hidden">
+                    Logo
+                </div>
             </div>
         `;
     }
@@ -151,7 +153,7 @@ async function loadFixtures() {
 
         const cardHtml = `
             <div class="bg-white p-4 rounded shadow-sm border border-gray-200 border-l-4 border-l-green-500">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-4 gap-3">
                     <span class="text-xs font-black uppercase text-gray-500">
                         Jornada ${escapeHtml(fixture.jornada)}
                     </span>
@@ -211,7 +213,7 @@ async function loadLeagueTable() {
     const tableBody = document.getElementById('league-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-sm text-gray-500">${safeT('loading_table', 'A carregar classificação...')}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-sm text-gray-500">${safeT('loading_table', 'A carregar classificação...')}</td></tr>`;
 
     const { data: teams, error } = await supabaseClient
         .from('teams')
@@ -226,40 +228,51 @@ async function loadLeagueTable() {
             points,
             goals_for,
             goals_against
-        `)
-        .order('points', { ascending: false })
-        .order('won', { ascending: false })
-        .order('goals_for', { ascending: false });
+        `);
 
     if (error) {
         console.error('Erro ao carregar classificação:', error);
-        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-red-600 font-bold">Erro ao carregar classificação.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-red-600 font-bold">Erro ao carregar classificação.</td></tr>`;
         return;
     }
 
     tableBody.innerHTML = '';
 
     if (!teams || teams.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="6" class="p-4 text-gray-500">${safeT('no_teams', 'Sem equipas disponíveis.')}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="p-4 text-gray-500">${safeT('no_teams', 'Sem equipas disponíveis.')}</td></tr>`;
         return;
     }
 
-    teams.forEach(team => {
-        tableBody.innerHTML += `
-            <tr class="border-b border-gray-200 hover:bg-red-50 transition-colors">
-                <td class="p-3 sm:p-4 text-sm uppercase font-bold">
-                    <a href="team.html?slug=${encodeURIComponent(team.slug)}" class="hover:text-red-600 transition-colors">
-                        ${escapeHtml(team.name)}
-                    </a>
-                </td>
-                <td class="p-3 sm:p-4 text-center text-sm">${team.played ?? 0}</td>
-                <td class="p-3 sm:p-4 text-center text-sm text-green-600 font-bold">${team.won ?? 0}</td>
-                <td class="p-3 sm:p-4 text-center text-sm">${team.drawn ?? 0}</td>
-                <td class="p-3 sm:p-4 text-center text-sm">${team.lost ?? 0}</td>
-                <td class="p-3 sm:p-4 text-center font-black text-green-600 text-lg">${team.points ?? 0}</td>
-            </tr>
-        `;
-    });
+    teams
+        .sort((a, b) => {
+            const aGD = (a.goals_for ?? 0) - (a.goals_against ?? 0);
+            const bGD = (b.goals_for ?? 0) - (b.goals_against ?? 0);
+
+            if ((b.points ?? 0) !== (a.points ?? 0)) return (b.points ?? 0) - (a.points ?? 0);
+            if (bGD !== aGD) return bGD - aGD;
+            return (b.goals_for ?? 0) - (a.goals_for ?? 0);
+        })
+        .forEach(team => {
+            const goalsFor = team.goals_for ?? 0;
+            const goalsAgainst = team.goals_against ?? 0;
+            const goalDifference = goalsFor - goalsAgainst;
+
+            tableBody.innerHTML += `
+                <tr class="border-b border-gray-200 hover:bg-red-50 transition-colors">
+                    <td class="p-3 sm:p-4 text-sm uppercase font-bold">
+                        <a href="team.html?slug=${encodeURIComponent(team.slug)}" class="hover:text-red-600 transition-colors">
+                            ${escapeHtml(team.name)}
+                        </a>
+                    </td>
+                    <td class="p-3 sm:p-4 text-center text-sm">${team.played ?? 0}</td>
+                    <td class="p-3 sm:p-4 text-center text-sm text-green-600 font-bold">${team.won ?? 0}</td>
+                    <td class="p-3 sm:p-4 text-center text-sm">${team.drawn ?? 0}</td>
+                    <td class="p-3 sm:p-4 text-center text-sm">${team.lost ?? 0}</td>
+                    <td class="p-3 sm:p-4 text-center text-sm font-black">${goalDifference}</td>
+                    <td class="p-3 sm:p-4 text-center font-black text-green-600 text-lg">${team.points ?? 0}</td>
+                </tr>
+            `;
+        });
 }
 
 async function loadTeams() {
