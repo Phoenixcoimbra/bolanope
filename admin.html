@@ -1,73 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard | Low Hall League</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Low Hall League</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
+  <nav class="bg-black text-white p-5 border-b-4 border-yellow-400 shadow-xl">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-black italic">LOW HALL <span class="text-red-500">ADMIN</span></h1>
+      <div class="flex items-center gap-4">
+        <a href="index.html" class="text-sm font-bold hover:text-yellow-400">Back to site</a>
+        <button id="logout-btn" class="text-sm font-bold text-red-400 hover:text-yellow-400">Logout</button>
+      </div>
+    </div>
+  </nav>
 
-    <nav class="bg-black text-white p-5 border-b-4 border-yellow-400 shadow-xl">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-black italic">
-                LOW HALL <span class="text-red-500">ADMIN</span>
-            </h1>
-
-            <div class="flex items-center gap-4">
-                <a href="index.html" class="text-sm font-bold hover:text-yellow-400">Back to site</a>
-                <button id="logout-btn" class="text-sm font-bold text-red-400 hover:text-yellow-400">Logout</button>
-            </div>
+  <main class="container mx-auto px-4 py-8 space-y-8">
+    <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-blue-600">
+      <h2 class="text-2xl font-black mb-4">Select Match</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <select id="fixture-select" class="border rounded-lg p-3">
+          <option value="">Select fixture</option>
+        </select>
+        <div id="current-score-box" class="rounded-lg border p-4 bg-gray-50 text-sm text-gray-600">
+          Select a fixture to view score and events.
         </div>
-    </nav>
+      </div>
+    </section>
 
-    <main class="container mx-auto px-4 py-8 space-y-10">
+    <section class="grid lg:grid-cols-2 gap-8">
+      <div class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-green-600">
+        <h2 class="text-2xl font-black mb-4">Add Goal</h2>
+        <form id="goal-form" class="grid gap-4">
+          <select id="goal-player-select" class="border rounded-lg p-3" required disabled>
+            <option value="">Select scorer</option>
+          </select>
+          <input id="goal-minute" type="number" min="1" max="130" placeholder="Minute (optional)" class="border rounded-lg p-3" />
+          <button type="submit" class="bg-green-600 text-white font-black rounded-lg px-5 py-3 w-fit">
+            Add Goal
+          </button>
+        </form>
+        <p id="goal-message" class="mt-4 text-sm font-bold"></p>
+      </div>
 
-        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-green-600">
-            <h2 class="text-2xl font-black mb-4">Add Goal</h2>
+      <div class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-yellow-500">
+        <h2 class="text-2xl font-black mb-4">Add Card</h2>
+        <form id="card-form" class="grid gap-4">
+          <select id="card-player-select" class="border rounded-lg p-3" required disabled>
+            <option value="">Select player</option>
+          </select>
+          <select id="card-type" class="border rounded-lg p-3" required>
+            <option value="yellow">Yellow</option>
+            <option value="red">Red</option>
+          </select>
+          <input id="card-minute" type="number" min="1" max="130" placeholder="Minute (optional)" class="border rounded-lg p-3" />
+          <button type="submit" class="bg-yellow-500 text-black font-black rounded-lg px-5 py-3 w-fit">
+            Add Card
+          </button>
+        </form>
+        <p id="card-message" class="mt-4 text-sm font-bold"></p>
+      </div>
+    </section>
 
-            <form id="goal-form" class="grid md:grid-cols-2 gap-4">
-                <select id="fixture-select" class="border rounded-lg p-3 md:col-span-2" required>
-                    <option value="">Select fixture</option>
-                </select>
+    <section class="grid lg:grid-cols-2 gap-8">
+      <div class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-red-600">
+        <h2 class="text-2xl font-black mb-4">Goals in Match</h2>
+        <div id="match-goals-list" class="space-y-3">
+          <p class="text-sm text-gray-500">No fixture selected.</p>
+        </div>
+      </div>
 
-                <select id="scorer-select" class="border rounded-lg p-3" required disabled>
-                    <option value="">Select scorer</option>
-                </select>
+      <div class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-black">
+        <h2 class="text-2xl font-black mb-4">Cards in Match</h2>
+        <div id="match-cards-list" class="space-y-3">
+          <p class="text-sm text-gray-500">No fixture selected.</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-                <input id="goal-minute" type="number" min="1" max="130" placeholder="Minute (optional)" class="border rounded-lg p-3" />
-
-                <button type="submit" class="bg-green-600 text-white font-black rounded-lg px-5 py-3 w-fit">
-                    Add Goal
-                </button>
-            </form>
-
-            <p id="goal-message" class="mt-4 text-sm font-bold"></p>
-        </section>
-
-        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-yellow-400">
-            <h2 class="text-2xl font-black mb-4">Current Match Score</h2>
-            <div id="current-score-box" class="text-sm text-gray-600">
-                Select a fixture to view the current score.
-            </div>
-        </section>
-
-        <section class="bg-white rounded-xl shadow-lg p-6 border-l-8 border-red-600">
-            <h2 class="text-2xl font-black mb-4">Goals in Selected Match</h2>
-            <div id="match-goals-list" class="space-y-3">
-                <p class="text-sm text-gray-500">No fixture selected.</p>
-            </div>
-        </section>
-
-    </main>
-
-    <script src="admin.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>

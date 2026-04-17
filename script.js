@@ -3,15 +3,10 @@ const SUPABASE_ANON_KEY = 'sb_publishable_LhCp8yCM9qUNeVKGkmF_nw_Hnw9DFst';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+let liveChannel = null;
+let reloadTimer = null;
+
 const DEFAULT_KICKOFF = '12:30';
-const DEFAULT_VENUE = {
-    pt: 'Beckton District Park South, Stansfeld Road, London E6 5LT',
-    en: 'Beckton District Park South, Stansfeld Road, London E6 5LT'
-};
-const JIPANGUE_HOME_VENUE = {
-    pt: '23 Norfolk Close, London N13 6AN',
-    en: '23 Norfolk Close, London N13 6AN'
-};
 
 function safeT(key, fallback = '') {
     try {
@@ -92,19 +87,17 @@ function teamLogoHtml(team, size = 'w-10 h-10') {
 }
 
 function getFixtureVenue(fixture) {
-    const lang = safeLang();
-
     if (fixture.venue && String(fixture.venue).trim() !== '') {
         return fixture.venue;
     }
 
-    const homeTeamName = fixture.home_team?.name || '';
+    const homeTeamName = (fixture.home_team?.name || '').toLowerCase();
 
-    if (homeTeamName.toLowerCase() === 'jipangue') {
-        return JIPANGUE_HOME_VENUE[lang] || JIPANGUE_HOME_VENUE.pt;
+    if (homeTeamName === 'jipangue') {
+        return '23 Norfolk Close, London N13 6AN';
     }
 
-    return DEFAULT_VENUE[lang] || DEFAULT_VENUE.pt;
+    return 'Beckton District Park South, Stansfeld Road, London E6 5LT';
 }
 
 function getFixtureKickoff(fixture) {
@@ -523,9 +516,40 @@ async function reloadPageContent() {
     showTab('next');
 }
 
+function scheduleLiveReload() {
+    if (reloadTimer) clearTimeout(reloadTimer);
+
+    reloadTimer = setTimeout(async () => {
+        try {
+            await reloadPageContent();
+            console.log('Live update applied');
+        } catch (error) {
+            console.error('Live update failed:', error);
+        }
+    }, 250);
+}
+
+function setupLiveMatchMode() {
+    if (liveChannel) {
+        supabaseClient.removeChannel(liveChannel);
+    }
+
+    liveChannel = supabaseClient
+        .channel('live-match-mode')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'fixtures' }, scheduleLiveReload)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, scheduleLiveReload)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, scheduleLiveReload)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'goals' }, scheduleLiveReload)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'cards' }, scheduleLiveReload)
+        .subscribe((status) => {
+            console.log('Live match mode:', status);
+        });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await reloadPageContent();
+        setupLiveMatchMode();
     } catch (error) {
         console.error('Erro ao iniciar o site:', error);
     }
@@ -533,4 +557,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 window.addEventListener('languageChanged', async () => {
     await reloadPageContent();
+});
+
+window.addEventListener('beforeunload', () => {
+    if (liveChannel) {
+        supabaseClient.removeChannel(liveChannel);
+    }
 });
