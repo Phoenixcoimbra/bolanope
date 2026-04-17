@@ -83,6 +83,9 @@ const translations = {
         draw: "Empate",
         loss: "Derrota",
         date_tbd: "Data por definir",
+        played_short: "J",
+        wins_short: "V",
+        draw_loss_short: "E/D",
 
         // MANAGER / SQUAD VIEW
         manager_title: "Manager",
@@ -167,6 +170,10 @@ const translations = {
         footer_text: "E17 Football Excellence • © 2026",
         goal_difference_col: "GD",
         venue_label: "Venue",
+        played_short: "P",
+        wins_short: "W",
+        draw_loss_short: "D/L",
+        
 
         // TEAM PAGE
         team_profile_label: "Team Profile",

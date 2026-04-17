@@ -314,7 +314,11 @@ async function loadTeams() {
     const container = document.getElementById('teams-container');
     if (!container) return;
 
-    container.innerHTML = `<p class="text-sm text-gray-500">${safeT('loading_teams', 'A carregar equipas...')}</p>`;
+    container.innerHTML = `
+        <p class="text-sm text-gray-500">
+            ${safeT('loading_teams', 'A carregar equipas...')}
+        </p>
+    `;
 
     const { data: teams, error } = await supabaseClient
         .from('teams')
@@ -333,14 +337,23 @@ async function loadTeams() {
 
     if (error) {
         console.error('Erro ao carregar equipas:', error);
-        container.innerHTML = `<p class="text-red-600 font-bold">Erro ao carregar equipas.</p>`;
+
+        container.innerHTML = `
+            <p class="text-red-600 font-bold">
+                Erro ao carregar equipas.
+            </p>
+        `;
         return;
     }
 
     container.innerHTML = '';
 
     if (!teams || teams.length === 0) {
-        container.innerHTML = `<p class="text-gray-500">${safeT('no_teams', 'Sem equipas disponíveis.')}</p>`;
+        container.innerHTML = `
+            <p class="text-gray-500">
+                ${safeT('no_teams', 'Sem equipas disponíveis.')}
+            </p>
+        `;
         return;
     }
 
@@ -348,35 +361,68 @@ async function loadTeams() {
         container.innerHTML += `
             <a
                 href="team.html?slug=${encodeURIComponent(team.slug)}"
-                class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-5 hover:shadow-2xl hover:-translate-y-1 transition-all block"
+                class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-5 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 block"
             >
-                <div class="flex items-center justify-center mb-4">
+                <!-- LOGO -->
+                <div class="flex justify-center mb-4">
                     ${teamLogoHtml(team, 'w-16 h-16')}
                 </div>
 
-                <p class="text-xs uppercase font-black text-gray-500 mb-2 text-center">${safeT('team_label', 'Equipa')}</p>
-                <h4 class="text-lg font-black italic uppercase mb-4 text-center break-words">${escapeHtml(team.name)}</h4>
+                <!-- LABEL -->
+                <p class="text-[10px] uppercase font-black tracking-widest text-gray-400 mb-2 text-center">
+                    ${safeT('team_label', 'Equipa')}
+                </p>
 
+                <!-- TEAM NAME -->
+                <h4 class="text-lg font-black italic uppercase text-center mb-5 break-words text-gray-900">
+                    ${escapeHtml(team.name)}
+                </h4>
+
+                <!-- STATS -->
                 <div class="grid grid-cols-2 gap-2 text-xs font-bold uppercase">
-                    <div class="bg-gray-100 rounded p-2 text-center">
-                        <span class="block text-gray-500">J</span>
-                        <span class="text-black">${team.played ?? 0}</span>
+                    
+                    <div class="bg-gray-100 rounded-lg p-3 text-center">
+                        <span class="block text-[10px] text-gray-500 mb-1">
+                            ${safeT('played_short', 'J')}
+                        </span>
+                        <span class="text-base font-black text-gray-900">
+                            ${team.played ?? 0}
+                        </span>
                     </div>
-                    <div class="bg-gray-100 rounded p-2 text-center">
-                        <span class="block text-gray-500">PTS</span>
-                        <span class="text-green-600">${team.points ?? 0}</span>
+
+                    <div class="bg-gray-100 rounded-lg p-3 text-center">
+                        <span class="block text-[10px] text-gray-500 mb-1">
+                            PTS
+                        </span>
+                        <span class="text-base font-black text-green-600">
+                            ${team.points ?? 0}
+                        </span>
                     </div>
-                    <div class="bg-gray-100 rounded p-2 text-center">
-                        <span class="block text-gray-500">V</span>
-                        <span class="text-black">${team.won ?? 0}</span>
+
+                    <div class="bg-gray-100 rounded-lg p-3 text-center">
+                        <span class="block text-[10px] text-gray-500 mb-1">
+                            ${safeT('wins_short', 'V')}
+                        </span>
+                        <span class="text-base font-black text-gray-900">
+                            ${team.won ?? 0}
+                        </span>
                     </div>
-                    <div class="bg-gray-100 rounded p-2 text-center">
-                        <span class="block text-gray-500">E/D</span>
-                        <span class="text-black">${team.drawn ?? 0}/${team.lost ?? 0}</span>
+
+                    <div class="bg-gray-100 rounded-lg p-3 text-center">
+                        <span class="block text-[10px] text-gray-500 mb-1">
+                            ${safeT('draw_loss_short', 'E/D')}
+                        </span>
+                        <span class="text-base font-black text-gray-900">
+                            ${team.drawn ?? 0}/${team.lost ?? 0}
+                        </span>
                     </div>
+
                 </div>
 
-                <p class="mt-4 text-xs font-black uppercase text-red-600 text-center">${safeT('view_profile', 'Ver perfil →')}</p>
+                <!-- BUTTON -->
+                <p class="mt-5 text-xs font-black uppercase text-red-600 text-center tracking-wider">
+                    ${safeT('view_profile', 'Ver perfil →')}
+                </p>
             </a>
         `;
     });
