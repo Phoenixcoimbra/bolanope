@@ -8,6 +8,37 @@ let currentPlayers = [];
 let currentFixtures = [];
 let squadView = localStorage.getItem('squadView') || 'cards';
 
+const POSITION_ORDER = {
+    GK: 1,
+
+    DR: 2,
+    RB: 2,
+
+    DC: 3,
+    CB: 3,
+
+    DL: 4,
+    LB: 4,
+
+    DM: 5,
+
+    MC: 6,
+    CM: 6,
+
+    AMC: 7,
+    CAM: 7,
+    MCO: 7,
+
+    AMR: 8,
+    RW: 8,
+
+    AML: 9,
+    LW: 9,
+
+    ST: 10,
+    CF: 10
+};
+
 function getSlugFromUrl() {
     const params = new URLSearchParams(window.location.search);
     return params.get('slug');
@@ -56,6 +87,8 @@ function renderTeamNotFound(message) {
 function loadTeamLogo(logoUrl, teamName) {
     const img = document.getElementById('team-logo');
     const placeholder = document.getElementById('team-logo-placeholder');
+
+    if (!img || !placeholder) return;
 
     if (logoUrl && String(logoUrl).trim() !== '') {
         img.src = logoUrl;
@@ -112,13 +145,33 @@ function renderTeamHeader() {
     loadInstagramLink(currentTeam.instagram || currentTeam.instagram_url || currentTeam.instagram_handle);
 }
 
+function getPositionSortValue(position) {
+    return POSITION_ORDER[String(position || '').trim().toUpperCase()] || 99;
+}
+
+function sortPlayersFM(players) {
+    return [...players].sort((a, b) => {
+        const posA = getPositionSortValue(a.position);
+        const posB = getPositionSortValue(b.position);
+
+        if (posA !== posB) return posA - posB;
+
+        const numA = a.number ?? 999;
+        const numB = b.number ?? 999;
+
+        if (numA !== numB) return numA - numB;
+
+        return String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' });
+    });
+}
+
 function mapPositionGroup(position) {
     const pos = String(position || '').trim().toUpperCase();
 
     if (['GK'].includes(pos)) return 'goalkeeper';
-    if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(pos)) return 'defence';
-    if (['DM', 'CM', 'MCO', 'CAM', 'LM', 'RM'].includes(pos)) return 'midfield';
-    if (['LW', 'RW', 'ST', 'CF'].includes(pos)) return 'attack';
+    if (['DR', 'RB', 'DC', 'CB', 'DL', 'LB', 'LWB', 'RWB'].includes(pos)) return 'defence';
+    if (['DM', 'MC', 'CM', 'AMC', 'CAM', 'MCO', 'LM', 'RM'].includes(pos)) return 'midfield';
+    if (['AMR', 'RW', 'AML', 'LW', 'ST', 'CF'].includes(pos)) return 'attack';
 
     return 'unassigned';
 }
@@ -153,25 +206,43 @@ function getPositionLabel(position) {
     const map = {
         pt: {
             GK: 'GR',
-            LB: 'DE',
-            CB: 'DC',
+            DR: 'DD',
             RB: 'DD',
+            DC: 'DC',
+            CB: 'DC',
+            DL: 'DE',
+            LB: 'DE',
             DM: 'MD',
+            MC: 'MC',
+            CM: 'MC',
+            AMC: 'MCO',
+            CAM: 'MCO',
             MCO: 'MCO',
-            LW: 'EE',
+            AMR: 'ED',
             RW: 'ED',
+            AML: 'EE',
+            LW: 'EE',
             ST: 'PL',
             CF: 'AV'
         },
         en: {
             GK: 'GK',
-            LB: 'LB',
-            CB: 'CB',
+            DR: 'RB',
             RB: 'RB',
+            DC: 'CB',
+            CB: 'CB',
+            DL: 'LB',
+            LB: 'LB',
             DM: 'DM',
+            MC: 'MC',
+            CM: 'MC',
+            AMC: 'CAM',
+            CAM: 'CAM',
             MCO: 'CAM',
-            LW: 'LW',
+            AMR: 'RW',
             RW: 'RW',
+            AML: 'LW',
+            LW: 'LW',
             ST: 'ST',
             CF: 'CF'
         }
@@ -267,11 +338,10 @@ async function loadPlayers(teamId) {
             goals,
             yellow_cards,
             red_cards,
+            goals_conceded,
             games_played
         `)
-        .eq('team_id', teamId)
-        .order('number', { ascending: true, nullsFirst: false })
-        .order('name', { ascending: true });
+        .eq('team_id', teamId);
 
     if (error) {
         console.error('Erro ao carregar jogadores:', error);
@@ -279,7 +349,7 @@ async function loadPlayers(teamId) {
         return;
     }
 
-    currentPlayers = players || [];
+    currentPlayers = sortPlayersFM(players || []);
     renderGroupedRoster();
     renderPlayerHighlights(currentPlayers);
 }
@@ -330,6 +400,8 @@ function renderGroupedRoster() {
     order.forEach(group => {
         if (!grouped[group].length) return;
 
+        const groupPlayers = sortPlayersFM(grouped[group]);
+
         roster.innerHTML += `
             <div class="space-y-4">
                 <div class="flex items-center gap-4">
@@ -340,23 +412,24 @@ function renderGroupedRoster() {
                 ${
                     squadView === 'cards'
                         ? `<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            ${grouped[group].map(player => renderPlayerCard(player)).join('')}
+                            ${groupPlayers.map(player => renderPlayerCard(player)).join('')}
                            </div>`
                         : `<div class="bg-white rounded-xl shadow-lg border overflow-x-auto">
                             <table class="w-full text-left">
-                                <thead class="bg-gray-100 text-xs uppercase font-black text-gray-600">
+                                <thead class="bg-gray-100 text-[10px] sm:text-xs uppercase font-black text-gray-600">
                                     <tr>
-                                        <th class="p-4 w-20 text-center">#</th>
-                                        <th class="p-4">${safeT('player_col', 'Jogador')}</th>
-                                        <th class="p-4 w-28 text-center">${safeT('position_col', 'Posição')}</th>
-                                        <th class="p-4 w-24 text-center">${safeT('games_col', 'Jogos')}</th>
-                                        <th class="p-4 w-24 text-center">${safeT('goals_col', 'Golos')}</th>
-                                        <th class="p-4 w-20 text-center">🟨</th>
-                                        <th class="p-4 w-20 text-center">🟥</th>
+                                        <th class="p-2 sm:p-4 w-14 text-center">#</th>
+                                        <th class="p-2 sm:p-4">${safeT('player_col', 'Jogador')}</th>
+                                        <th class="p-2 sm:p-4 w-20 text-center">${safeT('position_col', 'Posição')}</th>
+                                        <th class="p-2 sm:p-4 w-16 text-center">${safeT('games_col', 'Jogos')}</th>
+                                        <th class="p-2 sm:p-4 w-16 text-center">${safeT('goals_col', 'Golos')}</th>
+                                        <th class="p-2 sm:p-4 w-16 text-center">GC</th>
+                                        <th class="p-2 sm:p-4 w-14 text-center">🟨</th>
+                                        <th class="p-2 sm:p-4 w-14 text-center">🟥</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${grouped[group].map(player => renderPlayerRow(player)).join('')}
+                                    ${groupPlayers.map(player => renderPlayerRow(player)).join('')}
                                 </tbody>
                             </table>
                            </div>`
@@ -373,35 +446,45 @@ function renderPlayerCard(player) {
     const goals = player.goals ?? 0;
     const yellow = player.yellow_cards ?? 0;
     const red = player.red_cards ?? 0;
+    const conceded = player.goals_conceded ?? 0;
+    const isGK = String(player.position || '').toUpperCase() === 'GK';
 
     return `
-        <div class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-5">
-            <div class="flex items-start justify-between gap-4 mb-4">
+        <div class="bg-white rounded-xl shadow-lg border-t-4 border-red-600 p-4 sm:p-5">
+            <div class="flex items-start justify-between gap-3 mb-4">
                 <div class="min-w-0">
-                    <p class="text-xs uppercase font-black text-gray-500 mb-1">#${number}</p>
-                    <h4 class="text-xl font-black italic uppercase break-words">${escapeHtml(player.name)}</h4>
+                    <p class="text-[10px] sm:text-xs uppercase font-black text-gray-500 mb-1">#${number}</p>
+                    <h4 class="text-base sm:text-xl font-black italic uppercase leading-tight break-words">${escapeHtml(player.name)}</h4>
                 </div>
-                <span class="bg-black text-white text-xs font-black px-3 py-1 rounded-full uppercase shrink-0">
+                <span class="bg-black text-white text-[10px] sm:text-xs font-black px-2 sm:px-3 py-1 rounded-full uppercase shrink-0">
                     ${escapeHtml(position)}
                 </span>
             </div>
 
-            <div class="grid grid-cols-4 gap-2 text-center text-xs font-black uppercase">
-                <div class="bg-gray-100 rounded p-3">
+            <div class="grid ${isGK ? 'grid-cols-5' : 'grid-cols-4'} gap-2 text-center text-[10px] sm:text-xs font-black uppercase">
+                <div class="bg-gray-100 rounded p-2 sm:p-3">
                     <span class="block text-gray-500">${safeT('games_col', 'Jogos')}</span>
-                    <span class="text-black text-base">${games}</span>
+                    <span class="text-black text-sm sm:text-base">${games}</span>
                 </div>
-                <div class="bg-gray-100 rounded p-3">
+                <div class="bg-gray-100 rounded p-2 sm:p-3">
                     <span class="block text-gray-500">${safeT('goals_col', 'Golos')}</span>
-                    <span class="text-green-600 text-base">${goals}</span>
+                    <span class="text-green-600 text-sm sm:text-base">${goals}</span>
                 </div>
-                <div class="bg-gray-100 rounded p-3">
+                ${
+                    isGK
+                        ? `<div class="bg-gray-100 rounded p-2 sm:p-3">
+                            <span class="block text-gray-500">GC</span>
+                            <span class="text-red-600 text-sm sm:text-base">${conceded}</span>
+                           </div>`
+                        : ''
+                }
+                <div class="bg-gray-100 rounded p-2 sm:p-3">
                     <span class="block text-gray-500">🟨</span>
-                    <span class="text-black text-base">${yellow}</span>
+                    <span class="text-black text-sm sm:text-base">${yellow}</span>
                 </div>
-                <div class="bg-gray-100 rounded p-3">
+                <div class="bg-gray-100 rounded p-2 sm:p-3">
                     <span class="block text-gray-500">🟥</span>
-                    <span class="text-black text-base">${red}</span>
+                    <span class="text-black text-sm sm:text-base">${red}</span>
                 </div>
             </div>
         </div>
@@ -409,15 +492,18 @@ function renderPlayerCard(player) {
 }
 
 function renderPlayerRow(player) {
+    const isGK = String(player.position || '').toUpperCase() === 'GK';
+
     return `
-        <tr class="border-t hover:bg-red-50 transition-colors">
-            <td class="p-4 text-center font-black align-middle">${player.number ?? '—'}</td>
-            <td class="p-4 font-bold uppercase align-middle">${escapeHtml(player.name)}</td>
-            <td class="p-4 text-center font-black align-middle">${escapeHtml(getPositionLabel(player.position))}</td>
-            <td class="p-4 text-center align-middle">${player.games_played ?? 0}</td>
-            <td class="p-4 text-center font-black text-green-600 align-middle">${player.goals ?? 0}</td>
-            <td class="p-4 text-center align-middle">${player.yellow_cards ?? 0}</td>
-            <td class="p-4 text-center align-middle">${player.red_cards ?? 0}</td>
+        <tr class="border-t hover:bg-red-50 transition-colors text-xs sm:text-sm">
+            <td class="p-2 sm:p-4 text-center font-black align-middle">${player.number ?? '—'}</td>
+            <td class="p-2 sm:p-4 font-bold uppercase align-middle whitespace-nowrap">${escapeHtml(player.name)}</td>
+            <td class="p-2 sm:p-4 text-center font-black align-middle">${escapeHtml(getPositionLabel(player.position))}</td>
+            <td class="p-2 sm:p-4 text-center align-middle">${player.games_played ?? 0}</td>
+            <td class="p-2 sm:p-4 text-center font-black text-green-600 align-middle">${player.goals ?? 0}</td>
+            <td class="p-2 sm:p-4 text-center font-black text-red-600 align-middle">${isGK ? (player.goals_conceded ?? 0) : '-'}</td>
+            <td class="p-2 sm:p-4 text-center align-middle">${player.yellow_cards ?? 0}</td>
+            <td class="p-2 sm:p-4 text-center align-middle">${player.red_cards ?? 0}</td>
         </tr>
     `;
 }
@@ -447,6 +533,8 @@ async function loadFixtures(teamId, teamName) {
             id,
             jornada,
             match_date,
+            venue,
+            kickoff_time,
             home_score,
             away_score,
             status,
