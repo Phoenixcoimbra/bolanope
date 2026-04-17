@@ -3,6 +3,16 @@ const SUPABASE_ANON_KEY = 'sb_publishable_LhCp8yCM9qUNeVKGkmF_nw_Hnw9DFst';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const DEFAULT_KICKOFF = '12:30';
+const DEFAULT_VENUE = {
+    pt: 'Beckton District Park South, Stansfeld Road, London E6 5LT',
+    en: 'Beckton District Park South, Stansfeld Road, London E6 5LT'
+};
+const JIPANGUE_HOME_VENUE = {
+    pt: '23 Norfolk Close, London N13 6AN',
+    en: '23 Norfolk Close, London N13 6AN'
+};
+
 function safeT(key, fallback = '') {
     try {
         if (typeof t === 'function') return t(key);
@@ -81,6 +91,29 @@ function teamLogoHtml(team, size = 'w-10 h-10') {
     `;
 }
 
+function getFixtureVenue(fixture) {
+    const lang = safeLang();
+
+    if (fixture.venue && String(fixture.venue).trim() !== '') {
+        return fixture.venue;
+    }
+
+    const homeTeamName = fixture.home_team?.name || '';
+
+    if (homeTeamName.toLowerCase() === 'jipangue') {
+        return JIPANGUE_HOME_VENUE[lang] || JIPANGUE_HOME_VENUE.pt;
+    }
+
+    return DEFAULT_VENUE[lang] || DEFAULT_VENUE.pt;
+}
+
+function getFixtureKickoff(fixture) {
+    if (fixture.kickoff_time && String(fixture.kickoff_time).trim() !== '') {
+        return fixture.kickoff_time;
+    }
+    return DEFAULT_KICKOFF;
+}
+
 async function loadFixtures() {
     const nextCont = document.getElementById('next-fixture-container');
     const allCont = document.getElementById('all-fixtures-container');
@@ -96,6 +129,8 @@ async function loadFixtures() {
             id,
             jornada,
             match_date,
+            kickoff_time,
+            venue,
             home_score,
             away_score,
             status,
@@ -138,6 +173,8 @@ async function loadFixtures() {
         const homeName = escapeHtml(fixture.home_team?.name || 'Equipa Casa');
         const awayName = escapeHtml(fixture.away_team?.name || 'Equipa Fora');
         const restName = escapeHtml(fixture.rest_team?.name || '—');
+        const venue = escapeHtml(getFixtureVenue(fixture));
+        const kickoff = escapeHtml(getFixtureKickoff(fixture));
 
         let homeClass = '';
         let awayClass = '';
@@ -149,18 +186,18 @@ async function loadFixtures() {
 
         const statusHtml = isPlayedMatch(fixture)
             ? `<span class="bg-black text-white px-3 py-1 rounded font-black text-sm tracking-widest">${escapeHtml(getScoreDisplay(fixture))}</span>`
-            : `<span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[10px] font-bold uppercase">${escapeHtml(formatDate(fixture.match_date))}</span>`;
+            : `<span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[10px] font-bold uppercase">${kickoff}</span>`;
 
         const cardHtml = `
             <div class="bg-white p-4 rounded shadow-sm border border-gray-200 border-l-4 border-l-green-500">
                 <div class="flex justify-between items-center mb-4 gap-3">
                     <span class="text-xs font-black uppercase text-gray-500">
-                        Jornada ${escapeHtml(fixture.jornada)}
+                        Jornada ${escapeHtml(fixture.jornada)} • ${escapeHtml(formatDate(fixture.match_date))}
                     </span>
                     ${statusHtml}
                 </div>
 
-                <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center justify-between gap-2 mb-4">
                     <div class="flex items-center gap-2 min-w-0 flex-1">
                         ${teamLogoHtml(fixture.home_team, 'w-8 h-8')}
                         <span class="text-xs sm:text-sm font-black uppercase leading-tight break-words ${homeClass}">
@@ -176,6 +213,11 @@ async function loadFixtures() {
                         </span>
                         ${teamLogoHtml(fixture.away_team, 'w-8 h-8')}
                     </div>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-[11px] uppercase font-black text-gray-500">${safeT('venue_label', 'Local')}</p>
+                    <p class="text-sm font-bold text-gray-700 leading-snug">${venue}</p>
                 </div>
             </div>
         `;

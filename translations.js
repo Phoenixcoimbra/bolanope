@@ -11,8 +11,9 @@ const translations = {
         nav_profile: "Perfil",
         nav_roster: "Plantel",
         nav_matches: "Jogos",
+        nav_manager: "Manager",
 
-        // INDEX
+        // HOME
         hero_title: "Community Football Tournament 2026",
         hero_subtitle: "Low Hall Sports Ground • London E17",
         fixtures_title: "Calendário",
@@ -21,7 +22,6 @@ const translations = {
         table_title: "Classificação",
         team_col: "Equipa",
         teams_title: "Equipas",
-        stats_title: "Stats",
         top_scorers: "🏆 TOP SCORERS",
         discipline: "🟨 DISCIPLINE",
         loading_games: "A carregar jogos...",
@@ -40,18 +40,13 @@ const translations = {
         view_profile: "Ver perfil →",
         rest_label: "Descansa",
         footer_text: "E17 Football Excellence • © 2026",
+        goal_difference_col: "DG",
+        venue_label: "Local",
 
         // TEAM PAGE
-        nav_manager: "Manager",
-manager_title: "Manager",
-head_coach_label: "Treinador",
-squad_view_label: "Ver",
-squad_view_cards: "Cards",
-squad_view_list: "Lista",
-        team_profile_label: "Team Profile",
+        team_profile_label: "Perfil da Equipa",
         team_profile_title: "Perfil da Equipa",
         team_roster_title: "Plantel",
-        team_stats_title: "Stats",
         team_matches_title: "Jogos da Equipa",
         summary_title: "Resumo",
         summary_players: "Jogadores",
@@ -89,6 +84,13 @@ squad_view_list: "Lista",
         loss: "Derrota",
         date_tbd: "Data por definir",
 
+        // MANAGER / SQUAD VIEW
+        manager_title: "Manager",
+        head_coach_label: "Treinador",
+        squad_view_label: "Ver",
+        squad_view_cards: "Cards",
+        squad_view_list: "Lista",
+
         // RULES PAGE
         rules_title: "Regras & Regulamento",
         competition_title: "Formato da Competição",
@@ -111,7 +113,15 @@ squad_view_list: "Lista",
         suspensions_title: "Suspensões",
         susp_1: "2 amarelos acumulados: suspensão de 1 jogo",
         susp_2: "Cartão vermelho direto: mínimo 1 jogo de suspensão",
-        susp_3: "Casos graves: decisão da organização"
+        susp_3: "Casos graves: decisão da organização",
+        goal_difference_col: "DG",
+        venue_label: "Local",
+        kickoff_title: "Horário dos Jogos",
+        kickoff_1: "Início dos jogos às 12:30",
+        kickoff_2: "Tolerância máxima de 30 minutos",
+        venues_title: "Locais dos Jogos",
+        venues_1: "Jogos em geral: Beckton District Park South, Stansfeld Road, London E6 5LT",
+        venues_2: "Jogos do Jipangue em casa: 23 Norfolk Close, London N13 6AN",
     },
 
     en: {
@@ -126,8 +136,9 @@ squad_view_list: "Lista",
         nav_profile: "Profile",
         nav_roster: "Squad",
         nav_matches: "Matches",
+        nav_manager: "Manager",
 
-        // INDEX
+        // HOME
         hero_title: "Community Football Tournament 2026",
         hero_subtitle: "Low Hall Sports Ground • London E17",
         fixtures_title: "Fixtures",
@@ -136,7 +147,6 @@ squad_view_list: "Lista",
         table_title: "Standings",
         team_col: "Team",
         teams_title: "Teams",
-        stats_title: "Stats",
         top_scorers: "🏆 TOP SCORERS",
         discipline: "🟨 DISCIPLINE",
         loading_games: "Loading matches...",
@@ -155,18 +165,13 @@ squad_view_list: "Lista",
         view_profile: "View profile →",
         rest_label: "Resting",
         footer_text: "E17 Football Excellence • © 2026",
+        goal_difference_col: "GD",
+        venue_label: "Venue",
 
         // TEAM PAGE
-        nav_manager: "Manager",
-manager_title: "Manager",
-head_coach_label: "Head Coach",
-squad_view_label: "View",
-squad_view_cards: "Cards",
-squad_view_list: "List",
         team_profile_label: "Team Profile",
         team_profile_title: "Team Profile",
         team_roster_title: "Squad",
-        team_stats_title: "Stats",
         team_matches_title: "Team Matches",
         summary_title: "Summary",
         summary_players: "Players",
@@ -204,6 +209,13 @@ squad_view_list: "List",
         loss: "Loss",
         date_tbd: "Date to be confirmed",
 
+        // MANAGER / SQUAD VIEW
+        manager_title: "Manager",
+        head_coach_label: "Head Coach",
+        squad_view_label: "View",
+        squad_view_cards: "Cards",
+        squad_view_list: "List",
+
         // RULES PAGE
         rules_title: "Rules & Regulations",
         competition_title: "Competition Format",
@@ -226,7 +238,15 @@ squad_view_list: "List",
         suspensions_title: "Suspensions",
         susp_1: "2 accumulated yellow cards: 1-match suspension",
         susp_2: "Straight red card: minimum 1-match suspension",
-        susp_3: "Serious cases: organiser decision"
+        susp_3: "Serious cases: organiser decision",
+        goal_difference_col: "GD",
+        venue_label: "Venue",
+        kickoff_title: "Kick-off Times",
+        kickoff_1: "Matches start at 12:30",
+        kickoff_2: "Maximum tolerance: 30 minutes",
+        venues_title: "Match Venues",
+        venues_1: "General matches: Beckton District Park South, Stansfeld Road, London E6 5LT",
+        venues_2: "Jipangue home matches: 23 Norfolk Close, London N13 6AN",
     }
 };
 
