@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Match Centre</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .hero-bg {
+            background: linear-gradient(145deg, #111827, #dc2626);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+<nav class="bg-black text-white p-5 sticky top-0 z-50 shadow-2xl border-b-2 border-yellow-400">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="index.html" class="text-2xl font-black italic">
+            LOW HALL <span class="text-red-500">LEAGUE</span>
+        </a>
+
+        <div class="flex flex-col md:flex-row items-center gap-4">
+            <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm uppercase font-black tracking-wider">
+                <li><a href="index.html" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="nav_home">Home</a></li>
+                <li><a href="#timeline" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="match_timeline_title">Eventos</a></li>
+                <li><a href="#stats" class="py-2 hover:text-yellow-400 transition-colors" data-i18n="match_stats_title">Estatísticas</a></li>
+            </ul>
+
+            <div class="flex items-center gap-2 text-xs font-black uppercase">
+                <button onclick="setLang('pt')" class="hover:text-yellow-400 transition-colors">PT</button>
+                <span class="text-gray-500">|</span>
+                <button onclick="setLang('en')" class="hover:text-yellow-400 transition-colors">EN</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-bg text-white py-14 px-4 border-b-8 border-black">
+    <div class="container mx-auto text-center">
+        <p id="match-status-badge" class="inline-block px-4 py-2 rounded-full bg-red-600 text-xs font-black uppercase tracking-widest mb-4">
+            LIVE
+        </p>
+
+        <div id="sponsor-strip" class="hidden mb-6">
+            <div class="inline-flex items-center gap-3 bg-white/10 rounded-full px-4 py-2 border border-white/20">
+                <img id="sponsor-logo" src="" alt="Sponsor" class="hidden w-8 h-8 object-contain rounded bg-white p-1" />
+                <span id="sponsor-name" class="text-xs uppercase font-black tracking-widest"></span>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-[1fr_auto_1fr] gap-6 items-center max-w-5xl mx-auto">
+            <div class="text-center md:text-right">
+                <div class="flex justify-center md:justify-end mb-3" id="home-logo-wrap"></div>
+                <h1 id="home-team-name" class="text-2xl md:text-4xl font-black italic uppercase">Home</h1>
+            </div>
+
+            <div class="text-center">
+                <p id="match-minute" class="text-yellow-300 text-sm font-black uppercase tracking-[0.25em] mb-3">0'</p>
+                <div class="inline-flex items-center gap-3 bg-black px-5 py-3 rounded-2xl shadow-2xl">
+                    <span id="home-score" class="text-4xl md:text-6xl font-black">0</span>
+                    <span class="text-2xl md:text-4xl font-black text-yellow-400">-</span>
+                    <span id="away-score" class="text-4xl md:text-6xl font-black">0</span>
+                </div>
+                <p id="match-date" class="mt-3 text-xs uppercase font-black tracking-wider text-gray-200">—</p>
+            </div>
+
+            <div class="text-center md:text-left">
+                <div class="flex justify-center md:justify-start mb-3" id="away-logo-wrap"></div>
+                <h1 id="away-team-name" class="text-2xl md:text-4xl font-black italic uppercase">Away</h1>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <p class="text-xs uppercase font-black text-gray-300 mb-1" data-i18n="venue_label">Local</p>
+            <p id="match-venue" class="font-bold text-sm md:text-base">—</p>
+        </div>
+    </div>
+</header>
+
+<main class="container mx-auto px-4 py-10 space-y-10">
+
+    <section id="timeline" class="grid lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-2xl shadow-lg border-l-8 border-green-600 p-6">
+            <h2 class="text-2xl font-black mb-4 uppercase" data-i18n="match_goals_title">Golos</h2>
+            <div id="match-goals-list" class="space-y-3">
+                <p class="text-sm text-gray-500" data-i18n="loading_games">A carregar...</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg border-l-8 border-yellow-500 p-6">
+            <h2 class="text-2xl font-black mb-4 uppercase" data-i18n="match_cards_title">Cartões</h2>
+            <div id="match-cards-list" class="space-y-3">
+                <p class="text-sm text-gray-500" data-i18n="loading_games">A carregar...</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="stats" class="bg-white rounded-2xl shadow-lg border-l-8 border-red-600 p-6">
+        <h2 class="text-2xl font-black mb-6 uppercase" data-i18n="match_stats_title">Estatísticas</h2>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="rounded-xl bg-gray-50 border p-4">
+                <div class="flex justify-between items-center">
+                    <span class="font-black text-sm uppercase" data-i18n="shots_label">Remates</span>
+                    <span class="text-xs font-bold text-gray-500" id="shots-summary">0 - 0</span>
+                </div>
+                <div class="grid grid-cols-3 items-center mt-3 text-center">
+                    <div id="home-shots" class="text-3xl font-black">0</div>
+                    <div class="text-sm font-black uppercase text-gray-500">vs</div>
+                    <div id="away-shots" class="text-3xl font-black">0</div>
+                </div>
+            </div>
+
+            <div class="rounded-xl bg-gray-50 border p-4">
+                <div class="flex justify-between items-center">
+                    <span class="font-black text-sm uppercase" data-i18n="corners_label">Cantos</span>
+                    <span class="text-xs font-bold text-gray-500" id="corners-summary">0 - 0</span>
+                </div>
+                <div class="grid grid-cols-3 items-center mt-3 text-center">
+                    <div id="home-corners" class="text-3xl font-black">0</div>
+                    <div class="text-sm font-black uppercase text-gray-500">vs</div>
+                    <div id="away-corners" class="text-3xl font-black">0</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="bg-black text-white py-10 text-center border-t-8 border-red-600">
+    <p class="font-black italic text-xl">LOW HALL LEAGUE</p>
+</footer>
+
+<script src="translations.js"></script>
+<script src="match.js"></script>
+</body>
+</html>
